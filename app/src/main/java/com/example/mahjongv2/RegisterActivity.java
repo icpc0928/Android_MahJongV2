@@ -68,12 +68,11 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try{
-                            Log.v("leo",response);
+                            Log.v("leo","Regist response = "+response);
                             JSONObject jsonObject = new JSONObject(response);
                             String success = jsonObject.getString("success");
 
                             if(success.equals("1")){
-                                Log.v("leo","debug2");
                                 Toast.makeText(RegisterActivity.this,"Register Success!",Toast.LENGTH_SHORT).show();
                             }
 
