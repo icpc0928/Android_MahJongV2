@@ -4,17 +4,32 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
+import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
     private TextView name , email;
     private Button btn_logout , btn_gotoRooms;
     SessionManager sessionManager;
+
+
 
 
     @Override
@@ -53,9 +68,14 @@ public class HomeActivity extends AppCompatActivity {
         btn_gotoRooms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+                //抓完資料庫資料後才能跳轉頁面
                 Intent intent = new Intent(HomeActivity.this,RoomsActivity.class);
                 startActivity(intent);
                 HomeActivity.this.finish();
+
+
 
 
             }
@@ -63,4 +83,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
     }
+
+
+
 }
