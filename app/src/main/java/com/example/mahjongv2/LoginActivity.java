@@ -108,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String name = object.getString("name").trim();
                                     String email = object.getString("email").trim();
 
+                                    //只有在LOGIN按下後確實抓到帳號跟名稱 才能創造Session
                                     sessionManager.createSession(name,email);
 
                                     Intent intent = new Intent(LoginActivity.this,HomeActivity.class);

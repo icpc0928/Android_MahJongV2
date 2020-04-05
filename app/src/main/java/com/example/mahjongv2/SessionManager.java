@@ -26,6 +26,7 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
 
+    //只有在LoginAct中 LOGIN按鈕按下確實有拿到帳號跟名稱後才能 創造Session 將需要的資料傳到editor
     public void createSession(String name,String email){
         editor.putBoolean(LOGIN,true);
         editor.putString(NAME,name);
@@ -33,13 +34,15 @@ public class SessionManager {
         editor.apply();
     }
 
-    //檢查有沒有Login機制
+    //檢查有沒有Login機制  如果沒有預設沒有
     public boolean isLogin(){
         return sharedPreferences.getBoolean(LOGIN,false);
 
     }
 
     public void checkLogin(){
+        //配合檢查機制
+        //如果isLogin為否(預設為否) 則將頁面轉到LoginAct 並將HomeAct.finish //表示說不曾登入過或已登出進來後都先到LoginAct
         if(!this.isLogin()){
             Intent i = new Intent(context,LoginActivity.class);
             context.startActivity(i);
@@ -55,6 +58,7 @@ public class SessionManager {
         return user;
     }
 
+    //如果logout的話 把原本存入的editor清空 並且回到LoginAct畫面 並將HomeAct.finish
     public void logout(){
         editor.clear();
         editor.commit();
