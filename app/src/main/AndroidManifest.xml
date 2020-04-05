@@ -13,23 +13,27 @@
         android:theme="@style/AppThemeRegist"
         android:usesCleartextTraffic="true">
 
-        <activity android:name=".HomeActivity">
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/AppThemeRegist"
-            />
+            android:screenOrientation="landscape"
+            android:theme="@style/AppThemeRegist" />
         <activity
             android:name=".RegisterActivity"
-            android:theme="@style/AppThemeRegist"
-            />
-
+            android:screenOrientation="landscape"
+            android:theme="@style/AppThemeRegist" />
+        <activity
+            android:name=".RoomsActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppThemeRegist"/>
     </application>
 
 </manifest>

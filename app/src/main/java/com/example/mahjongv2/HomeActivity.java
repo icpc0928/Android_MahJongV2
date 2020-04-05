@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class HomeActivity extends AppCompatActivity {
 
     private TextView name , email;
-    private Button btn_logout;
+    private Button btn_logout , btn_gotoRooms;
     SessionManager sessionManager;
 
 
@@ -32,6 +32,7 @@ public class HomeActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         email= findViewById(R.id.email);
         btn_logout = findViewById(R.id.btn_logout);
+        btn_gotoRooms = findViewById(R.id.btn_gotoRooms);
 
         HashMap<String,String> user = sessionManager.getUserDetail();
         String mName = user.get(sessionManager.NAME);
@@ -45,6 +46,18 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sessionManager.logout();
+            }
+        });
+
+        //房間列表按鈕監聽
+        btn_gotoRooms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this,RoomsActivity.class);
+                startActivity(intent);
+                HomeActivity.this.finish();
+
+
             }
         });
 
