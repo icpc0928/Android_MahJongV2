@@ -58,6 +58,8 @@ public class RoomsActivity extends AppCompatActivity {
         //然後放進ListView
         initListView();
 
+
+        //返回首頁
         btn_gotoHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,9 +69,20 @@ public class RoomsActivity extends AppCompatActivity {
 
             }
         });
+
+        //創建房間按鈕監聽
+        btn_createRoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RoomsActivity.this,NewRoomActivity.class);
+                startActivity(intent);
+                RoomsActivity.this.finish();
+            }
+        });
+
     }
 
-
+//顯示listView列表 從資料庫
     private void roomList(){
         Log.v("leo","roomList()");
 
@@ -108,16 +121,11 @@ public class RoomsActivity extends AppCompatActivity {
 
     }
 
-
-
-
     private void initListView(){
         adapter = new SimpleAdapter(this,data,R.layout.item,from,to);
         listView.setAdapter(adapter);
 
     }
-
-
 
     //解拿到response的JSONObject
     private void parseJSON(JSONObject jsonObject){

@@ -50,6 +50,7 @@ public class SessionManager {
         }
     }
 
+    //抓取user的ID 跟Email
     public HashMap<String,String> getUserDetail(){
         HashMap<String,String> user = new HashMap<>();
         user.put(NAME,sharedPreferences.getString(NAME,null));

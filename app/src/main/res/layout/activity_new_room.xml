@@ -6,39 +6,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context=".RoomsActivity">
+    tools:context=".NewRoomActivity">
 
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-
         >
-        <Button
-            android:id="@+id/btn_createRoom"
-            android:text="創建房間"
-            android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+        <TextView
+            android:id="@+id/myRoomID"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_height="45dp"
             android:layout_marginTop="30dp"
-        />
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+            android:textSize="30sp"
+            android:textColor="@color/colorPrimaryDark2"
+
+
+            />
         <Button
-            android:id="@+id/btn_gotoRoom"
-            android:text="加入房間"
+            android:id="@+id/btn_startGame"
+            android:text="開始遊戲"
             android:textSize="30sp"
             android:textColor="@color/colorPrimaryDark2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btn_createRoom"
+            android:layout_below="@+id/myRoomID"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginTop="30dp"
             />
+
         <Button
-            android:id="@+id/btn_gotoHome"
+            android:id="@+id/btn_gotoRooms"
             android:text="返回"
             android:textSize="30sp"
             android:textColor="@color/colorPrimaryDark2"
@@ -67,36 +68,29 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="房間ID"
+                android:layout_weight="2"
+                android:text="PlayersID"
                 android:gravity="center"
                 android:textSize="35sp"
                 />
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="人數"
-                android:textSize="35sp"
-                android:gravity="center"
-                />
+
         </LinearLayout>
 
-            <LinearLayout
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/listView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ListView
-                    android:id="@+id/listView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="6"
-                    android:gravity="center"
-                    android:textSize="35sp"
-                    />
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:gravity="center"
+                android:textSize="35sp"
+                />
 
 
-            </LinearLayout>
+        </LinearLayout>
 
 
 
@@ -104,6 +98,5 @@
 
 
     </LinearLayout>
-
 
 </LinearLayout>
