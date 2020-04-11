@@ -53,6 +53,8 @@ public class RoomsActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
 
 
+
+
         //先把RoomsAct所需的資料從資料庫抓到
         roomList();
         //然後放進ListView
@@ -124,6 +126,7 @@ public class RoomsActivity extends AppCompatActivity {
     private void initListView(){
         adapter = new SimpleAdapter(this,data,R.layout.item,from,to);
         listView.setAdapter(adapter);
+
 
     }
 

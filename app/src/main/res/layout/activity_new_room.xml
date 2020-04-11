@@ -71,23 +71,50 @@
                 android:layout_weight="2"
                 android:text="PlayersID"
                 android:gravity="center"
-                android:textSize="35sp"
+                android:textSize="40sp"
                 />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
 
-            <ListView
-                android:id="@+id/listView"
+            <TextView
+                android:id="@+id/tv_player1"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="6"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="35sp"
+                android:textSize="40sp"
                 />
+            <TextView
+                android:id="@+id/tv_player2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="40sp"
+                />
+            <TextView
+                android:id="@+id/tv_player3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="40sp"
+                />
+            <TextView
+                android:id="@+id/tv_player4"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="40sp"
+                />
+
 
 
         </LinearLayout>
