@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "976082907673",
+    "firebase_url": "https://mahjongv2-f9862.firebaseio.com",
+    "project_id": "mahjongv2-f9862",
+    "storage_bucket": "mahjongv2-f9862.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976082907673:android:7a3248dff3e30ab553f088",
+        "android_client_info": {
+          "package_name": "com.example.mahjongv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "976082907673-luiu42jfgu5qan81n8iuleq66bbgibfg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mahjongv2",
+            "certificate_hash": "bcbabded16d4540aa6d9712bf7ffef29887afe8c"
+          }
+        },
+        {
+          "client_id": "976082907673-8h17phrlf6gdsro3g05vcr7r9l846246.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-ZCv0dmo68KyxOgYGcoIM-XAUcYfHQDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "976082907673-8h17phrlf6gdsro3g05vcr7r9l846246.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
