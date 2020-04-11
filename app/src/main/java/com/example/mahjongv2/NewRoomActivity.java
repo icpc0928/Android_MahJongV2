@@ -45,8 +45,6 @@ public class NewRoomActivity extends AppCompatActivity {
     String name  , lastId;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +60,8 @@ public class NewRoomActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         myRoomID = findViewById(R.id.myRoomID);
 
-
-
         //一進來之後馬上創建一個房間
         createRoom();
-
-
 
         //返回 房間列表(RoomsAct)按鈕監聽
         btn_gotoRooms.setOnClickListener(new View.OnClickListener() {

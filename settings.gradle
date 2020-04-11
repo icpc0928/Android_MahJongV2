@@ -1,0 +1,2 @@
+rootProject.name='MahJongV2'
+include ':app'
