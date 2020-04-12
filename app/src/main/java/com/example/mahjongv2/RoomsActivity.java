@@ -144,6 +144,22 @@ public class RoomsActivity extends AppCompatActivity {
         listView.setOnItemClickListener(onItemClickListener);
 
     }
+
+    //ListView單選監聽事件
+    AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if(selectedView != null){
+                selectedView.setBackgroundColor(Color.alpha(256));
+            }
+            selectedView = view;
+            view.setBackgroundColor(Color.GRAY);
+//            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
+//            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
+            selectedRoomId = data.get(position).get("id");
+        }
+    };
+
     //解拿到response的JSONObject
     private void parseJSON(JSONObject jsonObject){
         try{
@@ -172,21 +188,7 @@ public class RoomsActivity extends AppCompatActivity {
     }
 
 
-    //ListView單選監聽事件
-    AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-            if(selectedView != null){
-                selectedView.setBackgroundColor(Color.alpha(256));
-            }
-            selectedView = view;
-            view.setBackgroundColor(Color.GRAY);
-            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
-            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
-            selectedRoomId = data.get(position).get("id");
-        }
-    };
 
 
 }

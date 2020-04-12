@@ -13,7 +13,6 @@
         android:theme="@style/AppThemeRegist"
         android:usesCleartextTraffic="true">
 
-
         <activity
             android:name=".HomeActivity"
             android:screenOrientation="landscape">
@@ -38,7 +37,12 @@
         <activity
             android:name=".NewRoomActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppThemeRegist"></activity>
+            android:theme="@style/AppThemeRegist" />
+        <activity
+            android:name=".OldRoomActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppThemeRegist"
+            ></activity>
     </application>
 
 </manifest>

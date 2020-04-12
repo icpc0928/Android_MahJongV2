@@ -6,40 +6,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context=".NewRoomActivity">
+    tools:context=".OldRoomActivity">
 
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         >
+
         <TextView
             android:id="@+id/myRoomID"
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:textSize="30sp"
+            android:textColor="@color/colorPrimaryDark2"
             android:layout_marginTop="30dp"
             android:layout_marginRight="30dp"
             android:layout_marginLeft="30dp"
-            android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
-
-
-            />
-        <Button
-            android:id="@+id/btn_startGame"
-            android:text="開始遊戲"
-            android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/myRoomID"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="30dp"
             />
 
+
         <Button
-            android:id="@+id/btn_gotoRooms"
+            android:id="@+id/btn_backToRooms"
             android:text="返回"
             android:textSize="30sp"
             android:textColor="@color/colorPrimaryDark2"
@@ -50,15 +38,14 @@
             android:onClick="backToRooms"
             />
 
-    </RelativeLayout>
 
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical"
         >
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,10 +103,6 @@
 
 
         </LinearLayout>
-
-
-
-
 
 
     </LinearLayout>
