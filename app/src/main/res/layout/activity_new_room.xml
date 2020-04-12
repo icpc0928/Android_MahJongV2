@@ -50,6 +50,7 @@
             android:layout_marginRight="30dp"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"
+            android:onClick="backToRooms"
             />
 
     </RelativeLayout>

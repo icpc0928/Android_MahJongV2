@@ -4,14 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -30,13 +34,15 @@ import java.util.Map;
 
 public class RoomsActivity extends AppCompatActivity {
 
-    private Button btn_createRoom ,btn_gotoRoom , btn_gotoHome;
+    private Button btn_createRoom ,btn_gotoRoom , btn_gotoHome , btn_refreshList;
     private ListView listView;
     private static String URL_ROOMS = "http://192.168.0.101/android_register_login/roomlist.php";
     private SimpleAdapter adapter;
     private String[] from = {"id","players"};
     private int[] to ={R.id.item_id,R.id.item_players};
     private LinkedList<HashMap<String,String>> data = new LinkedList<>();
+    private String selectedRoomId;
+    private View selectedView = null;
 
 
 
@@ -50,6 +56,7 @@ public class RoomsActivity extends AppCompatActivity {
         btn_createRoom = findViewById(R.id.btn_createRoom);
         btn_gotoHome = findViewById(R.id.btn_gotoHome);
         btn_gotoRoom = findViewById(R.id.btn_gotoRoom);
+        btn_refreshList = findViewById(R.id.btn_refreshList);
         listView = findViewById(R.id.listView);
 
 
@@ -81,36 +88,40 @@ public class RoomsActivity extends AppCompatActivity {
                 RoomsActivity.this.finish();
             }
         });
+        //重新整理列表按鈕監聽
+        btn_refreshList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                data.clear();
+                roomList();
+                initListView();
+
+            }
+        });
 
     }
 
 //顯示listView列表 從資料庫
     private void roomList(){
-        Log.v("leo","roomList()");
-
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_ROOMS,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.v("leo","response :  "+response);
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             //拿到Obj叫parseJSON去做
                             parseJSON(jsonObject);
-
                         } catch (Exception e) {
-                            Log.v("leo","catch : "+e.toString());
+                            Log.v("leo","roomList()RespJSON Exc : "+e.toString());
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.v("leo","debug4  " + error.toString());
+                        Log.v("leo","roomList()RespErr:   " + error.toString());
                     }
                 })
-
-                /////////////////////////////////////////////
         {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -120,22 +131,24 @@ public class RoomsActivity extends AppCompatActivity {
         };
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
-
     }
 
+
+    //adapter 跟 listView要幹的事情
     private void initListView(){
+        //開一個adapter將資料放到裡面
         adapter = new SimpleAdapter(this,data,R.layout.item,from,to);
+        //將adapter放入listView
         listView.setAdapter(adapter);
-
+        //listView單選監聽
+        listView.setOnItemClickListener(onItemClickListener);
 
     }
-
     //解拿到response的JSONObject
     private void parseJSON(JSONObject jsonObject){
         try{
             JSONArray idArr = jsonObject.getJSONArray("id");
             JSONArray playersArr = jsonObject.getJSONArray("players");
-
             //解陣列 放入HashMap
             for(int i = 0;i<idArr.length();i++){
                 HashMap<String,String> temp = new HashMap<>();
@@ -148,7 +161,6 @@ public class RoomsActivity extends AppCompatActivity {
             Log.v("leo",e.toString());
         }
     }
-
     private UIHandler uiHandler = new UIHandler();
     private class UIHandler extends Handler{
         @Override
@@ -159,6 +171,22 @@ public class RoomsActivity extends AppCompatActivity {
         }
     }
 
+
+    //ListView單選監聽事件
+    AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            if(selectedView != null){
+                selectedView.setBackgroundColor(Color.alpha(256));
+            }
+            selectedView = view;
+            view.setBackgroundColor(Color.GRAY);
+            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
+            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
+            selectedRoomId = data.get(position).get("id");
+        }
+    };
 
 
 }

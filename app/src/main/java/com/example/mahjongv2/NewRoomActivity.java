@@ -67,10 +67,6 @@ public class NewRoomActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
 
-
-
-
-
         //抓自己的名字
         sessionManager = new SessionManager(this);
         HashMap<String,String> user = sessionManager.getUserDetail();
@@ -78,33 +74,24 @@ public class NewRoomActivity extends AppCompatActivity {
 
         //一進來之後馬上創建一個房間  INSERT INTO 一筆資料
         createRoom();
-
-        //返回 房間列表(RoomsAct)按鈕監聽
-        btn_gotoRooms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-
-                //也要刪除Firebase內的資料  會閃退但是還是會刪除資料  原因在於Firebase資料庫監聽
-                myRef = database.getReference(lastId);
-                myRef.removeValue();
-
-                //返回要做刪除房間的資料
-                deleteRoom();
-
-
-                //再將頁面關閉
-                Intent intent = new Intent(NewRoomActivity.this,RoomsActivity.class);
-                startActivity(intent);
-                NewRoomActivity.this.finish();
-
-
-
-            }
-        });
-
-
     }
+
+
+    //只要此頁面離開自動刪除 兩個資料庫 並將此頁面結束 所有指向
+    @Override
+    protected void onPause() {
+        //解除Firebase的監聽
+        myRef.removeEventListener(listener);
+        //也要刪除Firebase內的資料  會閃退但是還是會刪除資料  原因在於Firebase資料庫監聽
+        myRef.removeValue();
+        //返回要做刪除房間的資料
+        deleteRoom();
+        //將此頁面關閉並強制指回房間列表的頁面  此地有點怪，感覺點擊"開始遊戲'跳轉頁面後不知道這裡會不會有問題   且走且看
+        backToRooms(null);
+
+        super.onPause();
+    }
+
 
 
     //創建一筆房間資料表  並且拿出最後一個資料表的ID(也就是自己的)   然後要再創一個Firebase的房間供四人
@@ -123,6 +110,9 @@ public class NewRoomActivity extends AppCompatActivity {
                         myRoomID.setText("房間號："+lastId);
                         //去新增人員名單
                         setFirebase();
+
+                        //右側四個TextView的fireBase資料庫監聽   會閃退 跟退出鍵 刪除Firebase 資料有關
+                        myRef.addValueEventListener(listener);
                     }
                 },
                 new Response.ErrorListener() {
@@ -151,7 +141,6 @@ public class NewRoomActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.v("leo","DeleteRoom");
                     }
                 },
                 new Response.ErrorListener() {
@@ -169,7 +158,6 @@ public class NewRoomActivity extends AppCompatActivity {
                 };
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
-
     }
 
     public void setFirebase(){
@@ -181,36 +169,31 @@ public class NewRoomActivity extends AppCompatActivity {
 
         member.setIsReady(false);
         myRef = database.getReference(lastId);
-
-        //fireBase資料庫監聽   會閃退 跟退出鍵 刪除Firebase 資料有關
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                Member obj = dataSnapshot.getValue(Member.class);
-                player1.setText(obj.getNames().get(0));
-                player2.setText(obj.getNames().get(1));
-                player3.setText(obj.getNames().get(2));
-                player4.setText(obj.getNames().get(3));
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
         myRef.setValue(member);
+    }
 
 
+    //右側四個TextView監聽事件
+    ValueEventListener listener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            Member obj = dataSnapshot.getValue(Member.class);
+            player1.setText(obj.getNames().get(0));
+            player2.setText(obj.getNames().get(1));
+            player3.setText(obj.getNames().get(2));
+            player4.setText(obj.getNames().get(3));
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+        }
+    };
 
-
-
-
-
-
-
+//返回按鈕監聽
+    public void backToRooms(View view) {
+        //再將頁面關閉
+        Intent intent = new Intent(NewRoomActivity.this,RoomsActivity.class);
+        startActivity(intent);
+        NewRoomActivity.this.finish();
     }
 
 

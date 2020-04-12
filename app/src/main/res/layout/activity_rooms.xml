@@ -35,7 +35,19 @@
             android:layout_below="@id/btn_createRoom"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="15dp"
+            />
+        <Button
+            android:id="@+id/btn_refreshList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btn_gotoRoom"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="15dp"
+            android:text="重新整理"
+            android:textSize="30sp"
+            android:textColor="@color/colorPrimaryDark2"
             />
         <Button
             android:id="@+id/btn_gotoHome"
@@ -93,6 +105,7 @@
                     android:layout_weight="6"
                     android:gravity="center"
                     android:textSize="35sp"
+                    android:choiceMode="singleChoice"
                     />
 
 
