@@ -139,8 +139,12 @@ public class OldRoomActivity extends AppCompatActivity {
     public void backToRooms(View view) {
         //取消拿到的ID
         MainApp.RoomId="";
+
+        myRef.child("names").child(myP).setValue("");
+
         myRef.removeEventListener(listener);
-        myRef.child("names").child(myP).removeValue();
+        myRef.removeEventListener(singleListener);
+        p2=p3=p4="";
 
 
 
