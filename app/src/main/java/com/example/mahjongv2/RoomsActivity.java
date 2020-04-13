@@ -41,7 +41,7 @@ public class RoomsActivity extends AppCompatActivity {
     private String[] from = {"id","players"};
     private int[] to ={R.id.item_id,R.id.item_players};
     private LinkedList<HashMap<String,String>> data = new LinkedList<>();
-    private String selectedRoomId;
+    private String selectedRoomId="";
     private View selectedView = null;
 
 
@@ -95,6 +95,20 @@ public class RoomsActivity extends AppCompatActivity {
                 data.clear();
                 roomList();
                 initListView();
+            }
+        });
+
+        btn_gotoRoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedRoomId != ""){
+                    MainApp.RoomId = selectedRoomId;
+                    Intent intent = new Intent(RoomsActivity.this,OldRoomActivity.class);
+                    startActivity(intent);
+                    RoomsActivity.this.finish();
+                }else {
+                    //TODO 可以做SnackBar 或吐司麵包
+                }
 
             }
         });
@@ -142,7 +156,6 @@ public class RoomsActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         //listView單選監聽
         listView.setOnItemClickListener(onItemClickListener);
-
     }
 
     //ListView單選監聽事件
@@ -153,10 +166,11 @@ public class RoomsActivity extends AppCompatActivity {
                 selectedView.setBackgroundColor(Color.alpha(256));
             }
             selectedView = view;
-            view.setBackgroundColor(Color.GRAY);
+            selectedView.setBackgroundColor(Color.GRAY);
 //            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
 //            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
             selectedRoomId = data.get(position).get("id");
+
         }
     };
 

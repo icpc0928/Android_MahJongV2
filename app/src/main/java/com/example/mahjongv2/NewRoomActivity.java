@@ -113,7 +113,7 @@ public class NewRoomActivity extends AppCompatActivity {
 
                         //右側四個TextView的fireBase資料庫監聽   會閃退 跟退出鍵 刪除Firebase 資料有關
                         myRef.addValueEventListener(listener);
-                    }
+                }
                 },
                 new Response.ErrorListener() {
                     @Override
