@@ -2,6 +2,7 @@ package com.example.mahjongv2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btn_regist;
     private ProgressBar loading;
     private static String URL_REGIST="http://192.168.0.101/android_register_login/register.php";
+    SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +46,13 @@ public class RegisterActivity extends AppCompatActivity {
         c_password = findViewById(R.id.c_password);
         btn_regist = findViewById(R.id.btn_regist);
 
+
+        //註冊按鈕監聽
         btn_regist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Regist();
+
             }
         });
 
@@ -71,12 +76,13 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.v("leo","Regist response = "+response);
                             JSONObject jsonObject = new JSONObject(response);
                             String success = jsonObject.getString("success");
-
                             if(success.equals("1")){
                                 Toast.makeText(RegisterActivity.this,"Register Success!",Toast.LENGTH_SHORT).show();
+                                //抓完資料庫資料後才能跳轉頁面
+                                Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
+                                startActivity(intent);
+                                RegisterActivity.this.finish();
                             }
-
-
                         } catch (Exception e) {
                             Log.v("leo","Exception:  "+e.toString());
                             e.printStackTrace();
@@ -106,12 +112,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         };
-
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
-
-
-
-
     }
 }

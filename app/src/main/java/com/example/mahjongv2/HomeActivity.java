@@ -26,7 +26,7 @@ import java.util.Map;
 public class HomeActivity extends AppCompatActivity {
 
     private TextView name , email;
-    private Button btn_logout , btn_gotoRooms;
+    private Button btn_logout , btn_gotoRooms ,btn_gotoSmallGame;
     SessionManager sessionManager;
 
 
@@ -48,6 +48,7 @@ public class HomeActivity extends AppCompatActivity {
         email= findViewById(R.id.email);
         btn_logout = findViewById(R.id.btn_logout);
         btn_gotoRooms = findViewById(R.id.btn_gotoRooms);
+        btn_gotoSmallGame = findViewById(R.id.btn_gotoSmallGame);
 
         HashMap<String,String> user = sessionManager.getUserDetail();
         String mName = user.get(sessionManager.NAME);
@@ -68,18 +69,25 @@ public class HomeActivity extends AppCompatActivity {
         btn_gotoRooms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 //抓完資料庫資料後才能跳轉頁面
                 Intent intent = new Intent(HomeActivity.this,RoomsActivity.class);
                 startActivity(intent);
                 HomeActivity.this.finish();
 
-
-
-
             }
         });
+
+        //單機小遊戲
+        btn_gotoSmallGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO
+                Intent intent = new Intent(HomeActivity.this,SmallGameActivity.class);
+                startActivity(intent);
+                HomeActivity.this.finish();
+            }
+        });
+
 
 
     }

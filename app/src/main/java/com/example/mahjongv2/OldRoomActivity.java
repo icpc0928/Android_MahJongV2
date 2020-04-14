@@ -3,12 +3,14 @@ package com.example.mahjongv2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,9 +23,8 @@ import java.util.HashMap;
 
 public class OldRoomActivity extends AppCompatActivity {
 
-    private Button btn_backToRooms;
-    private TextView myRoomID, player1,player2,player3,player4;
 
+    private TextView myRoomID, player1,player2,player3,player4;
     public String p2="",p3="",p4="" ,myP="";
 
     SessionManager sessionManager;
@@ -32,14 +33,13 @@ public class OldRoomActivity extends AppCompatActivity {
     //Firebase Database
     private FirebaseDatabase database;
     private DatabaseReference myRef;
-
+    private Member obj;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_old_room);
 
-        btn_backToRooms = findViewById(R.id.btn_backToRooms);
         myRoomID = findViewById(R.id.myRoomID);
         player1 = findViewById(R.id.tv_player1);
         player2 = findViewById(R.id.tv_player2);
@@ -47,10 +47,6 @@ public class OldRoomActivity extends AppCompatActivity {
         player4 = findViewById(R.id.tv_player4);
 
         Log.v("leo",MainApp.RoomId);
-
-
-
-
 
         //抓自己的名字
         sessionManager = new SessionManager(this);
@@ -65,17 +61,8 @@ public class OldRoomActivity extends AppCompatActivity {
         myRef = database.getReference(MainApp.RoomId);
         Log.v("leo","++"+myRef.getKey());
 
-
         myRef.addListenerForSingleValueEvent(singleListener);
         myRef.addValueEventListener(listener);
-
-
-
-
-
-
-
-
     }
 
     //單次監聽取得人員名單 命且將位置補上
@@ -87,8 +74,6 @@ public class OldRoomActivity extends AppCompatActivity {
             p2=obj.getNames().get(1);
             p3=obj.getNames().get(2);
             p4=obj.getNames().get(3);
-
-
 
            if(p2.equals("")){
                myP="1";
@@ -118,35 +103,35 @@ public class OldRoomActivity extends AppCompatActivity {
     ValueEventListener listener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-           Member obj = dataSnapshot.getValue(Member.class);
+           obj = dataSnapshot.getValue(Member.class);
+            //房主離開...返回
+            if(obj.getNames().get(0).equals("")){
+                backToRooms(null);
+            }
             player1.setText(obj.getNames().get(0));
             player2.setText(obj.getNames().get(1));
             player3.setText(obj.getNames().get(2));
             player4.setText(obj.getNames().get(3));
-
-
-
         }
-
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
-
         }
     };
 
 
     //返回房間列表監聽事件
     public void backToRooms(View view) {
+        if(obj.getNames().get(0).equals("")){
+            Toast.makeText(this,"房主離開",Toast.LENGTH_SHORT).show();
+        }
         //取消拿到的ID
         MainApp.RoomId="";
 
         myRef.child("names").child(myP).setValue("");
 
         myRef.removeEventListener(listener);
-        myRef.removeEventListener(singleListener);
+        myRef.removeEventListener(singleListener);  //這行好像不影響，但保險起見還是關了
         p2=p3=p4="";
-
-
 
         Intent intent = new Intent(OldRoomActivity.this,RoomsActivity.class);
         startActivity(intent);

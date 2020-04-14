@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +48,7 @@ public class NewRoomActivity extends AppCompatActivity {
     private static String URL_DELETE= "http://192.168.0.101/android_register_login/deleteroom.php";
     SessionManager sessionManager;
     String name  , lastId;
+    Timer timer = new Timer();
 
     //Firebase-Database
     private FirebaseDatabase database;
@@ -80,10 +83,14 @@ public class NewRoomActivity extends AppCompatActivity {
     //只要此頁面離開自動刪除 兩個資料庫 並將此頁面結束 所有指向
     @Override
     protected void onPause() {
+        myRef.child("names").child("0").setValue("");
         //解除Firebase的監聽
         myRef.removeEventListener(listener);
-        //也要刪除Firebase內的資料  會閃退但是還是會刪除資料  原因在於Firebase資料庫監聽
-        myRef.removeValue();
+
+        //延遲執行刪除資料庫行為
+        timer.schedule(removeFirebaseDataBase,8000);
+
+
         //返回要做刪除房間的資料
         deleteRoom();
         //將此頁面關閉並強制指回房間列表的頁面  此地有點怪，感覺點擊"開始遊戲'跳轉頁面後不知道這裡會不會有問題   且走且看
@@ -196,6 +203,14 @@ public class NewRoomActivity extends AppCompatActivity {
         NewRoomActivity.this.finish();
     }
 
+    TimerTask removeFirebaseDataBase = new TimerTask() {
+        @Override
+        public void run() {
+            //也要刪除Firebase內的資料  會閃退但是還是會刪除資料  原因在於Firebase資料庫監聽
+            myRef.removeValue();
+
+        }
+    };
 
 
 }

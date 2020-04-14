@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SmallGameActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="horizontal"
+        >
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:text="返回"
+        android:onClick="btn_backToHome"
+        />
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:orientation="horizontal"
+        >
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+
+            >
+            <Button
+                android:id="@+id/btn_noNeed"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp"
+                android:text="不補牌"
+                android:gravity="center"
+                android:onClick="btn_noNeed"
+                />
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="10dp"
+                android:text="清除"
+                android:gravity="center"
+                android:onClick="btn_cancel"
+                />
+            <TextView
+                android:id="@+id/tv_nowMoney"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:layout_above="@id/btn_noNeed"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="10dp"
+                android:background="#000"
+                android:text="000,000"
+                android:textColor="#fff"
+                android:gravity="center"
+                />
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="40dp"
+                android:background="#000"
+                android:text="3"
+                android:textColor="#FFF"
+                android:textSize="15sp"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_playerCount"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="40dp"
+                android:layout_marginTop="150dp"
+                android:background="#000"
+                android:textSize="15sp"
+                android:textColor="#FFF"
+                android:gravity="center"
+                />
+
+
+
+
+
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="15"
+                android:orientation="vertical"
+                >
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    >
+                    <ImageView
+                        android:id="@+id/aiCard1"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+
+
+                        />
+                    <ImageView
+                        android:id="@+id/aiCard2"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="40dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/aiCard3"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="60dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/aiCard4"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="80dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/aiCard5"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="100dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    >
+
+                    <ImageView
+                        android:id="@+id/playerCard1"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+
+                    <ImageView
+                        android:id="@+id/playerCard2"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="40dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/playerCard3"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="60dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/playerCard4"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="80dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                    <ImageView
+                        android:id="@+id/playerCard5"
+                        android:layout_width="60dp"
+                        android:layout_height="90dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="100dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25sp"
+                        />
+                </RelativeLayout>
+
+
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4"
+                android:orientation="horizontal"
+                >
+                <TextView
+                    android:id="@+id/m100"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginVertical="10dp"
+                    android:text="100"
+                    android:textSize="20sp"
+                    android:background="#E66"
+                    android:gravity="center"
+                    />
+                <TextView
+                    android:id="@+id/m500"
+                    android:layout_toRightOf="@+id/m100"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginVertical="10dp"
+                    android:text="500"
+                    android:background="#766"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    />
+                <TextView
+                    android:id="@+id/m1000"
+                    android:layout_toRightOf="@+id/m500"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginVertical="10dp"
+                    android:text="1000"
+                    android:background="#299"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    />
+                <Button
+                    android:id="@+id/btn_need"
+                    android:layout_toRightOf="@+id/m1000"
+                    android:layout_width="120dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="補牌"
+                    android:background="#9FF"
+                    android:gravity="center"
+                    android:onClick="btn_need"
+                    />
+                <Button
+                    android:id="@+id/btn_startGame"
+                    android:layout_toRightOf="@id/m1000"
+                    android:layout_width="120dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="開始遊戲"
+                    android:background="#9FF"
+                    android:gravity="center"
+                    android:onClick="btn_startGame"
+
+                    />
+
+
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="6000"
+            android:textSize="20dp"
+            android:gravity="center"
+            />
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>
