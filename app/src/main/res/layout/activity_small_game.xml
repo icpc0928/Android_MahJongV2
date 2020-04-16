@@ -58,25 +58,25 @@
                 android:onClick="btn_cancel"
                 />
             <TextView
-                android:id="@+id/tv_nowMoney"
+                android:id="@+id/tv_betMoney"
                 android:layout_width="120dp"
                 android:layout_height="30dp"
                 android:layout_above="@id/btn_noNeed"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="10dp"
                 android:background="#000"
-                android:text="000,000"
+                android:text="100"
                 android:textColor="#fff"
                 android:gravity="center"
                 />
             <TextView
+                android:id="@+id/tv_aiCount"
                 android:layout_width="100dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="40dp"
                 android:layout_marginTop="40dp"
                 android:background="#000"
-                android:text="3"
                 android:textColor="#FFF"
                 android:textSize="15sp"
                 android:gravity="center"
@@ -307,6 +307,7 @@
         android:layout_weight="1"
         >
         <TextView
+            android:id="@+id/tv_myMoney"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:text="6000"
