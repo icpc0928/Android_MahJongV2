@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +32,7 @@ public class SmallGameActivity extends AppCompatActivity {
     private float playerCount;
     String uri = "@drawable/"+"card";
     private int myMoney;
+
 
 
 
@@ -133,9 +135,13 @@ public class SmallGameActivity extends AppCompatActivity {
         aiCount += transformCount(cards[countCard]);
         tv_aiCount.setText(setCountText(aiCount));
         countCard++;
+
+        long thisTimer = System.currentTimeMillis();
+
         //TODO here AI toFast
         while (aiCount<17){
             if(aiCard3.getDrawable()==null && aiCount<17){
+
                 Log.v("leo","aiCard3沒圖片");
                 aiCard3.setImageResource(imgURI(countCard));
                 aiCount += transformCount(cards[countCard]);

@@ -69,7 +69,8 @@ public class OldRoomActivity extends AppCompatActivity {
     ValueEventListener singleListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            Member obj = dataSnapshot.getValue(Member.class);
+            obj = dataSnapshot.getValue(Member.class);
+
             //get information
             p2=obj.getNames().get(1);
             p3=obj.getNames().get(2);
@@ -78,19 +79,27 @@ public class OldRoomActivity extends AppCompatActivity {
            if(p2.equals("")){
                myP="1";
                 myRef.child("names").child(myP).setValue(name);
+                MainApp.myTurn = 2;
 
             }else if(p3.equals("")){
                myP="2";
                 myRef.child("names").child(myP).setValue(name);
+               MainApp.myTurn = 3;
 
             }else if(p4.equals("")){
                myP="3";
                 myRef.child("names").child(myP).setValue(name);
+               MainApp.myTurn = 4;
 
             }else {
                //人數已滿
                backToRooms(null);
            }
+
+
+
+
+
 
 
         }
@@ -112,6 +121,16 @@ public class OldRoomActivity extends AppCompatActivity {
             player2.setText(obj.getNames().get(1));
             player3.setText(obj.getNames().get(2));
             player4.setText(obj.getNames().get(3));
+
+            //TODO 房主按下開始遊戲後 isReady == true
+            Log.v("leo","isReady: "+obj.getIsReady());
+            if(obj.getIsReady()){
+                Intent intent = new Intent(OldRoomActivity.this,PlayingActivity.class);
+                myRef.removeEventListener(listener);
+                startActivity(intent);
+                OldRoomActivity.this.finish();
+
+            }
         }
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {

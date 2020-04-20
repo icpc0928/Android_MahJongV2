@@ -46,7 +46,12 @@
         <activity
             android:name=".SmallGameActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppThemeRegist"/>
+            android:theme="@style/AppThemeRegist" />
+        <activity
+            android:name=".PlayingActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppThemeRegist"
+            />
     </application>
 
 </manifest>

@@ -8,7 +8,7 @@ public class Member {
     private Boolean isReady;
 
     public Member(){
-        names = new ArrayList<String>();
+        names = new ArrayList<>();
 
         isReady = false;
     }

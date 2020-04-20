@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlayingActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_myHandCards"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        />
+
+    <RelativeLayout
+        android:id="@+id/rl_p1Area"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        >
+
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_p4Area"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_p1Area"
+        android:layout_alignParentLeft="true"
+        >
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_p2Area"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_p1Area"
+        android:layout_alignParentRight="true"
+        >
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_p3Area"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/rl_p4Area"
+        android:layout_toLeftOf="@id/rl_p2Area"
+        >
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_sea"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/rl_p2Area"
+        android:layout_toRightOf="@id/rl_p4Area"
+        android:layout_below="@id/rl_p3Area"
+        android:layout_above="@id/rl_p1Area"
+        >
+
+        <RelativeLayout
+            android:id="@+id/rl_sea_p4"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            >
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_sea_p2"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            >
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_sea_p1"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/rl_sea_p4"
+            android:layout_toLeftOf="@id/rl_sea_p2"
+            >
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_sea_p3"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/rl_sea_p4"
+            android:layout_toLeftOf="@id/rl_sea_p2"
+            >
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_sea_sea"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@id/rl_sea_p2"
+            android:layout_toRightOf="@id/rl_sea_p4"
+            android:layout_above="@id/rl_sea_p1"
+            android:layout_below="@id/rl_sea_p3"
+            >
+        <TextView
+            android:id="@+id/tv_test"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Hello,World"
+            android:textSize="60dp"
+            />
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+
+
+
+
+
+</RelativeLayout>

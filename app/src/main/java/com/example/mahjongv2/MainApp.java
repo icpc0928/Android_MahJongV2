@@ -5,6 +5,7 @@ import android.app.Application;
 public class MainApp extends Application {
     public static String RoomId;
     public static String myName;
+    public static int myTurn;
 
 
     @Override
@@ -12,6 +13,7 @@ public class MainApp extends Application {
         super.onCreate();
         RoomId = "";
         myName = "";
+        myTurn = 0;
 
     }
 }

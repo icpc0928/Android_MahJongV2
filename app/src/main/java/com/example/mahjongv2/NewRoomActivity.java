@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -32,6 +33,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -44,15 +46,24 @@ public class NewRoomActivity extends AppCompatActivity {
     private Button btn_starGame , btn_gotoRooms;
     private TextView myRoomID,player1,player2,player3,player4;
 
+
     private static String URL_CREATE= "http://192.168.0.101/android_register_login/createroom.php";
     private static String URL_DELETE= "http://192.168.0.101/android_register_login/deleteroom.php";
     SessionManager sessionManager;
     String name  , lastId;
     Timer timer = new Timer();
 
+
     //Firebase-Database
     private FirebaseDatabase database;
     private DatabaseReference myRef;
+    private  Member member;
+
+    //第二個Firebase
+    private DatabaseReference gameRef;
+    private OriginMJ MJObj;
+
+
 
 
     @Override
@@ -77,6 +88,7 @@ public class NewRoomActivity extends AppCompatActivity {
 
         //一進來之後馬上創建一個房間  INSERT INTO 一筆資料
         createRoom();
+        MainApp.myTurn =1;
     }
 
 
@@ -168,7 +180,7 @@ public class NewRoomActivity extends AppCompatActivity {
     }
 
     public void setFirebase(){
-        Member member = new Member();
+        member = new Member();
         member.addName(name);
         member.addName("");
         member.addName("");
@@ -189,6 +201,9 @@ public class NewRoomActivity extends AppCompatActivity {
             player2.setText(obj.getNames().get(1));
             player3.setText(obj.getNames().get(2));
             player4.setText(obj.getNames().get(3));
+
+
+
         }
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -212,5 +227,59 @@ public class NewRoomActivity extends AppCompatActivity {
         }
     };
 
+    //開始遊戲按鈕 先判斷四人在場 改isReady=true Intent
+    public void startGame(View view) {
+//        if(player2.getText().toString() != "" && player3.getText().toString() != "" &&player4.getText().toString() != ""){
+            if(true){
+            // int[] allCards{11,11,11.....57,58,60}
+            //new OriginMJ xxx
+            // xxx.addName(allCards)
+            //
+            int[] cards =  {11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,    //萬
+                            21,21,21,21,22,22,22,22,23,23,23,23,24,24,24,24,25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28,29,29,29,29,    //筒
+                            31,31,31,31,32,32,32,32,33,33,33,33,34,34,34,34,35,35,35,35,36,36,36,36,37,37,37,37,38,38,38,38,39,39,39,39,    //條
+                            41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44,45,45,45,45,46,46,46,46,47,47,47,47,                            //東南西北中發白
+                            51,52,53,54,55,56,57,58,60};                                                                                    //花 + 牌背
+
+            washCards(cards);    //洗牌
+
+            MJObj = new OriginMJ();
+            MJObj.addMJCards(cards);
+            MJObj.addLastCards(MJObj.getMJCards());
+            Log.v("leo",MJObj.getMJCards().toString());
+            gameRef = database.getReference(lastId+"gaming");
+            gameRef.setValue(MJObj);
+
+
+
+
+
+
+
+
+
+
+            myRef.child("isReady").setValue(true);
+
+
+        }else{
+            Toast.makeText(this, "人數未滿無法開始", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //洗牌程序
+    private int[] washCards(int[] cards){
+        //洗牌 只洗前面144張 第145張是牌背
+        int playFlower = 0;  //測試用 如果要花---0  不花---8
+        for(int i =cards.length-2-playFlower;i>0;i--){
+            int rand = (int)(Math.random()*(i));
+            int temp ;
+            temp = cards[rand];
+            cards[rand]=cards[i];
+            cards[i]=temp;
+        }
+
+        return cards;
+    }
 
 }
