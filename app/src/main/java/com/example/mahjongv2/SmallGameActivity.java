@@ -2,8 +2,10 @@ package com.example.mahjongv2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,12 @@ public class SmallGameActivity extends AppCompatActivity {
     private Button btn_startGame,btn_cancel;
     private TextView tv_playerCount ,tv_aiCount ,tv_betMoney ,tv_myMoney;
     private Button btn_need , btn_noNeed;
+    private boolean aiSecCard = false;
+    private ImageView m100,m500,m1000;
+
+
+
+
 
 
     private int[] cards ;
@@ -32,6 +40,7 @@ public class SmallGameActivity extends AppCompatActivity {
     private float playerCount;
     String uri = "@drawable/"+"card";
     private int myMoney;
+
 
 
 
@@ -60,8 +69,16 @@ public class SmallGameActivity extends AppCompatActivity {
         tv_myMoney = findViewById(R.id.tv_myMoney);
         btn_need = findViewById(R.id.btn_need);
         btn_noNeed = findViewById(R.id.btn_noNeed);
+        m100 = findViewById(R.id.m100);
+        m500 = findViewById(R.id.m500);
+        m1000 = findViewById(R.id.m1000);
 
         myMoney = Integer.parseInt(tv_myMoney.getText().toString());
+
+        m100.setImageResource(R.drawable.chip100);
+        m500.setImageResource(R.drawable.chip500);
+        m1000.setImageResource(R.drawable.chip1000);
+
 
     }
 
@@ -86,9 +103,11 @@ public class SmallGameActivity extends AppCompatActivity {
                 //爆牌--直接賭金回預設值
                 if(playerCount>=22){
                     Toast.makeText(this,"輸"+tv_betMoney.getText(),Toast.LENGTH_SHORT).show();
-                    tv_betMoney.setText("100");
+                    tv_betMoney.setText("0");
                     btn_startGame.setVisibility(View.VISIBLE);
+                    btn_cancel.setVisibility(View.VISIBLE);
                     btn_need.setVisibility(View.INVISIBLE);
+                    btn_noNeed.setVisibility(View.INVISIBLE);
                 }
                 break;
             case 4 :
@@ -99,9 +118,11 @@ public class SmallGameActivity extends AppCompatActivity {
                 //爆牌--直接賭金回預設值
                 if(playerCount>=22){
                     Toast.makeText(this,"輸"+tv_betMoney.getText(),Toast.LENGTH_SHORT).show();
-                    tv_betMoney.setText("100");
+                    tv_betMoney.setText("0");
                     btn_startGame.setVisibility(View.VISIBLE);
+                    btn_cancel.setVisibility(View.VISIBLE);
                     btn_need.setVisibility(View.INVISIBLE);
+                    btn_noNeed.setVisibility(View.INVISIBLE);
                 }
                 break;
             case 5 :
@@ -112,15 +133,17 @@ public class SmallGameActivity extends AppCompatActivity {
                 //爆牌--直接賭金回預設值
                 if(playerCount>=22){
                     Toast.makeText(this,"輸"+tv_betMoney.getText(),Toast.LENGTH_SHORT).show();
-                    tv_betMoney.setText("100");
+                    tv_betMoney.setText("0");
                     btn_startGame.setVisibility(View.VISIBLE);
+                    btn_cancel.setVisibility(View.VISIBLE);
                     btn_need.setVisibility(View.INVISIBLE);
+                    btn_noNeed.setVisibility(View.INVISIBLE);
                 //過五關贏 拿回三倍賭金
                 }else {
                     Toast.makeText(this,"過五關贏雙倍",Toast.LENGTH_SHORT).show();
                     myMoney =myMoney+  Integer.parseInt(tv_betMoney.getText().toString())*3;
                     tv_myMoney.setText(""+myMoney);
-                    tv_betMoney.setText("100");
+                    tv_betMoney.setText("0");
                     btn_startGame.setVisibility(View.VISIBLE);
                     btn_need.setVisibility(View.INVISIBLE);
                 }
@@ -130,78 +153,123 @@ public class SmallGameActivity extends AppCompatActivity {
     }
 
     //不補牌按鈕監聽  AI going
-    public void btn_noNeed(View view) {
-        aiCard2.setImageResource(imgURI(countCard));
-        aiCount += transformCount(cards[countCard]);
-        tv_aiCount.setText(setCountText(aiCount));
-        countCard++;
+    public void btn_noNeed(View view)  {
 
-        long thisTimer = System.currentTimeMillis();
+        aiSecCard=false;
+        btn_need.setVisibility(View.INVISIBLE);
+        btn_noNeed.setVisibility(View.INVISIBLE);
+        btn_startGame.setVisibility(View.INVISIBLE);
+        btn_cancel.setVisibility(View.INVISIBLE);
 
-        //TODO here AI toFast
-        while (aiCount<17){
-            if(aiCard3.getDrawable()==null && aiCount<17){
-
-                Log.v("leo","aiCard3沒圖片");
-                aiCard3.setImageResource(imgURI(countCard));
-                aiCount += transformCount(cards[countCard]);
-                tv_aiCount.setText(setCountText(aiCount));
-                countCard++;
-            }else if(aiCard4.getDrawable()==null && aiCount<17){
-                Log.v("leo","aiCard4沒圖片");
-                aiCard4.setImageResource(imgURI(countCard));
-                aiCount += transformCount(cards[countCard]);
-                tv_aiCount.setText(setCountText(aiCount));
-                countCard++;
-            }else if(aiCard5.getDrawable()==null && aiCount<17){
-                Log.v("leo","aiCard5沒圖片");
-                aiCard5.setImageResource(imgURI(countCard));
-                aiCount += transformCount(cards[countCard]);
-                tv_aiCount.setText(setCountText(aiCount));
-                countCard++;
+        new CountDownTimer(3200,800){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if(aiCount<17){
+                    aiSetCard();
+                }else{
+                    onFinish(); //onFinish會持續執行 表示補到四張牌 會做兩次onFinish
+                }
             }
-        }
+            @Override
+            public void onFinish() {
+                //TODO AI補牌結束判斷輸贏
+                if(Math.floor(aiCount)>=Math.floor(playerCount) && aiCount<22){
+                    //ai贏
+                    Toast.makeText(getApplicationContext(),"輸"+tv_betMoney.getText(),Toast.LENGTH_SHORT).show();
+
+                }else{
+                    //player贏
+                    Toast.makeText(getApplicationContext(),"贏"+tv_betMoney.getText(),Toast.LENGTH_SHORT).show();
+                    myMoney =myMoney+Integer.parseInt(tv_betMoney.getText().toString())*2;
+                    tv_myMoney.setText(myMoney+"");
+                }
+                tv_betMoney.setText("0");
+                btn_startGame.setVisibility(View.VISIBLE); // 開始遊戲恢復 btn_start
+                btn_cancel.setVisibility(View.VISIBLE);    // 取消籌碼恢復 btn_cancel
+                btn_noNeed.setVisibility(View.VISIBLE);
+                this.cancel();
+
+            }
+        }.start();
+
 
 
 
 
     }
 
+    //ai補牌2~5張
+    private void aiSetCard()  {
+
+            if(!aiSecCard){
+                Log.v("leo","ai2");
+                aiCard2.setImageResource(imgURI(countCard));
+                aiCount += transformCount(cards[countCard]);
+                tv_aiCount.setText(setCountText(aiCount));
+                countCard++;
+                aiSecCard=true;
+            }else if(aiCard3.getDrawable()==null ){
+                aiCard3.setImageResource(imgURI(countCard));
+                aiCount += transformCount(cards[countCard]);
+                tv_aiCount.setText(setCountText(aiCount));
+                countCard++;
+            }else if(aiCard4.getDrawable()==null  ){
+                aiCard4.setImageResource(imgURI(countCard));
+                aiCount += transformCount(cards[countCard]);
+                tv_aiCount.setText(setCountText(aiCount));
+                countCard++;
+            }else if(aiCard5.getDrawable()==null ){
+                aiCard5.setImageResource(imgURI(countCard));
+                aiCount += transformCount(cards[countCard]);
+                tv_aiCount.setText(setCountText(aiCount));
+                countCard++;
+            }
+    }
+
 
     //開始遊戲 按鈕監聽
     public void btn_startGame(View view) {
-        myMoney -= Integer.parseInt(tv_betMoney.getText().toString());
-        tv_myMoney.setText(""+myMoney);
-        initNewGame();
-        btn_startGame.setVisibility(View.INVISIBLE);
-        btn_cancel.setVisibility(View.INVISIBLE);
-        btn_need.setVisibility(View.VISIBLE);
-
-        playerCard1.setImageResource(imgURI(0));
-        playerCard2.setImageResource(imgURI(1));
-        aiCard1.setImageResource(imgURI(2));
-        aiCard2.setImageResource(imgURI(52));
-        countCard =3;
-
-        playerCount = transformCount(cards[0])+transformCount(cards[1]);
-        tv_playerCount.setText(setCountText(playerCount));
-
-        //發牌直接BJ 拿回三倍賭金
-        if(playerCount >= 11.109f && playerCount <= 11.111f){
-            Toast.makeText(this,"BlackJack",Toast.LENGTH_SHORT).show();
-            myMoney =myMoney+  Integer.parseInt(tv_betMoney.getText().toString())*3;
+        if(Integer.parseInt(tv_betMoney.getText().toString())>0){
+            myMoney =myMoney- Integer.parseInt(tv_betMoney.getText().toString());
             tv_myMoney.setText(""+myMoney);
-            tv_betMoney.setText("100");
-            btn_startGame.setVisibility(View.VISIBLE);
-            btn_need.setVisibility(View.INVISIBLE);
+            initNewGame();
+            btn_startGame.setVisibility(View.INVISIBLE);
+            btn_cancel.setVisibility(View.INVISIBLE);
+            btn_need.setVisibility(View.VISIBLE);
+            btn_noNeed.setVisibility(View.VISIBLE);
+
+            playerCard1.setImageResource(imgURI(0));
+            playerCard2.setImageResource(imgURI(1));
+            aiCard1.setImageResource(imgURI(2));
+            aiCard2.setImageResource(imgURI(52));
+            countCard =3;
+
+            playerCount = transformCount(cards[0])+transformCount(cards[1]);
+            tv_playerCount.setText(setCountText(playerCount));
+
+            //發牌直接BJ 拿回三倍賭金
+            if(playerCount >= 11.109f && playerCount <= 11.111f){
+                Toast.makeText(this,"BlackJack",Toast.LENGTH_SHORT).show();
+                myMoney =myMoney+  Integer.parseInt(tv_betMoney.getText().toString())*3;
+                tv_myMoney.setText(""+myMoney);
+                tv_betMoney.setText("0");
+                btn_startGame.setVisibility(View.VISIBLE);
+                btn_cancel.setVisibility(View.VISIBLE);
+                btn_need.setVisibility(View.INVISIBLE);
+                btn_noNeed.setVisibility(View.INVISIBLE);
+            }
+
+
+            aiCount =transformCount(cards[2]);
+            tv_aiCount.setText(setCountText(aiCount));
+
+            Log.v("leo","playCount :"+playerCount);
+            Log.v("leo","aiCount :"+aiCount);
+        }else {
+            Toast.makeText(this,"請先下注再開始遊戲",Toast.LENGTH_SHORT).show();
         }
 
 
-        aiCount =transformCount(cards[2]);
-        tv_aiCount.setText(setCountText(aiCount));
-
-        Log.v("leo","playCount :"+playerCount);
-        Log.v("leo","aiCount :"+aiCount);
 
     }
 
@@ -225,7 +293,7 @@ public class SmallGameActivity extends AppCompatActivity {
     //弄個工具來將cards[i] 跟卡片路徑做個連接  i從0開始發
     private int imgURI(int i){
         int  imgMYURI = getResources().getIdentifier(uri+String.format("%02d", cards[i]),null,getPackageName());
-        Log.v("leo","StringFor :"+String.format("%02d", cards[i]));
+//        Log.v("leo","StringFor :"+String.format("%02d", cards[i]));
         return imgMYURI;
     }
 
@@ -263,14 +331,49 @@ public class SmallGameActivity extends AppCompatActivity {
         playerCard3.setImageResource(0);
         playerCard4.setImageResource(0);
         playerCard5.setImageResource(0);
+        aiCard1.setImageResource(0);
+        aiCard2.setImageResource(0);
+        aiCard3.setImageResource(0);
+        aiCard4.setImageResource(0);
+        aiCard5.setImageResource(0);
     }
 
 
     //清除籌碼 按鈕監聽 清除回預設值
     public void btn_cancel(View view) {
-        tv_betMoney.setText("100");
+        tv_betMoney.setText("0");
 
     }
 
+    public void add100(View view) {
+        if(myMoney>=100+Integer.parseInt(tv_betMoney.getText().toString())){
+            int i ;
+            i=Integer.parseInt(tv_betMoney.getText().toString())+100;
+            tv_betMoney.setText(i+"");
+        }else {
+            Toast.makeText(this,"金額不足",Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void add500(View view) {
+        if(myMoney>=500+Integer.parseInt(tv_betMoney.getText().toString())){
+            int i ;
+            i=Integer.parseInt(tv_betMoney.getText().toString())+500;
+            tv_betMoney.setText(i+"");
+        }else {
+            Toast.makeText(this,"金額不足",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void add1000(View view) {
+        if(myMoney>=1000+Integer.parseInt(tv_betMoney.getText().toString())){
+            int i ;
+            i=Integer.parseInt(tv_betMoney.getText().toString())+1000;
+            tv_betMoney.setText(i+"");
+        }else {
+            Toast.makeText(this,"金額不足",Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 

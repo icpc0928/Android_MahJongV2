@@ -88,7 +88,7 @@ public class NewRoomActivity extends AppCompatActivity {
 
         //一進來之後馬上創建一個房間  INSERT INTO 一筆資料
         createRoom();
-        MainApp.myTurn =1;
+        MainApp.myTurn =0;
     }
 
 
@@ -105,8 +105,8 @@ public class NewRoomActivity extends AppCompatActivity {
 
         //返回要做刪除房間的資料
         deleteRoom();
-        //將此頁面關閉並強制指回房間列表的頁面  此地有點怪，感覺點擊"開始遊戲'跳轉頁面後不知道這裡會不會有問題   且走且看
-        backToRooms(null);
+        //將此頁面關閉並強制指回房間列表的頁面  此地有點怪，感覺點擊"開始遊戲'跳轉頁面後不知道這裡會不會有問題   且走且看  TODO 是不是能夠不用這行??
+//        backToRooms(null);
 
         super.onPause();
     }
@@ -127,6 +127,7 @@ public class NewRoomActivity extends AppCompatActivity {
                         lastId = matcher.replaceAll("");
 
                         myRoomID.setText("房間號："+lastId);
+                        MainApp.RoomId=lastId;
                         //去新增人員名單
                         setFirebase();
 
@@ -230,11 +231,9 @@ public class NewRoomActivity extends AppCompatActivity {
     //開始遊戲按鈕 先判斷四人在場 改isReady=true Intent
     public void startGame(View view) {
 //        if(player2.getText().toString() != "" && player3.getText().toString() != "" &&player4.getText().toString() != ""){
-            if(true){
-            // int[] allCards{11,11,11.....57,58,60}
-            //new OriginMJ xxx
-            // xxx.addName(allCards)
-            //
+            if(true){  //測試
+
+
             int[] cards =  {11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,    //萬
                             21,21,21,21,22,22,22,22,23,23,23,23,24,24,24,24,25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28,29,29,29,29,    //筒
                             31,31,31,31,32,32,32,32,33,33,33,33,34,34,34,34,35,35,35,35,36,36,36,36,37,37,37,37,38,38,38,38,39,39,39,39,    //條
@@ -246,7 +245,9 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj = new OriginMJ();
             MJObj.addMJCards(cards);
             MJObj.addLastCards(MJObj.getMJCards());
-            Log.v("leo",MJObj.getMJCards().toString());
+            MJObj.setAllHand();
+
+
             gameRef = database.getReference(lastId+"gaming");
             gameRef.setValue(MJObj);
 
@@ -259,7 +260,13 @@ public class NewRoomActivity extends AppCompatActivity {
 
 
 
+
+
             myRef.child("isReady").setValue(true);
+            //Intent  果然跳轉後經過onPouse會出問題  這裡暫時先不要finish
+                Intent intent = new Intent(NewRoomActivity.this,PlayingActivity.class);
+                startActivity(intent);
+                NewRoomActivity.this.finish();
 
 
         }else{

@@ -79,17 +79,17 @@ public class OldRoomActivity extends AppCompatActivity {
            if(p2.equals("")){
                myP="1";
                 myRef.child("names").child(myP).setValue(name);
-                MainApp.myTurn = 2;
+                MainApp.myTurn = 1;
 
             }else if(p3.equals("")){
                myP="2";
                 myRef.child("names").child(myP).setValue(name);
-               MainApp.myTurn = 3;
+               MainApp.myTurn = 2;
 
             }else if(p4.equals("")){
                myP="3";
                 myRef.child("names").child(myP).setValue(name);
-               MainApp.myTurn = 4;
+               MainApp.myTurn = 3;
 
             }else {
                //人數已滿
