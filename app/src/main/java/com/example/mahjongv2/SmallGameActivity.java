@@ -279,7 +279,7 @@ public class SmallGameActivity extends AppCompatActivity {
         if(f >= 11.109f && f <=11.111f){
             //BlackJack youWin
             Log.v("leo","blackJack");
-            return ""+Math.floor(f);
+            return ""+(int)Math.floor(f);
             //A + A~10
         }else if((int)(Math.floor(f*100)) - (int)(Math.floor(f*10)*10) >0 && f<12){
             return (int)Math.floor(f)+"/"+((int)Math.floor(f)+10);
