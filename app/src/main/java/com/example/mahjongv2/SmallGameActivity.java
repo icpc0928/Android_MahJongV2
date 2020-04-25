@@ -271,6 +271,7 @@ public class SmallGameActivity extends AppCompatActivity {
 
 
 
+
     }
 
     //做個工具判斷要怎麼顯示在Player跟AI的 TV_count上
