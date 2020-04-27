@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -31,10 +32,11 @@ public class PlayingActivity extends AppCompatActivity {
     private LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager;
     private GridLayoutManager gridLayoutManager;
     private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea;
+    private Button btn_mask;
 
     private ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards;
 
-    private HansListAdapter p1_handadapter;
+    private p1_HansListAdapter p1_handadapter;
     private p2_HansListAdapter p2_handadapter;
     private p3_HansListAdapter p3_handadapter;
     private p4_HansListAdapter p4_handadapter;
@@ -58,13 +60,14 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p3Hand=findViewById(R.id.rv_p3HandCards);
         rv_p4Hand=findViewById(R.id.rv_p4HandCards);
         rv_sea=findViewById(R.id.rv_sea);
+        btn_mask = findViewById(R.id.btn_mask);
 
         //測試用firebase
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(MainApp.RoomId+"gaming");
         Log.v("leo","D1");
-//        myRef.addListenerForSingleValueEvent(singleListener);
-        myRef.addValueEventListener(singleListener);
+        myRef.addListenerForSingleValueEvent(singleListener);
+        myRef.addValueEventListener(valueEventListener);
         Log.v("leo","D2");
         p1Hand = new ArrayList<>();
         p2Hand = new ArrayList<>();
@@ -83,7 +86,7 @@ public class PlayingActivity extends AppCompatActivity {
         p1_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,true);
         rv_p1Hand.setLayoutManager(p1_linearLayoutManager);
         //設置手牌的調變器
-        p1_handadapter=new HansListAdapter();
+        p1_handadapter=new p1_HansListAdapter();
         rv_p1Hand.setAdapter(p1_handadapter);
         //設定子view的滑動動畫
         rv_p1Hand.setItemAnimator(new DefaultItemAnimator());
@@ -133,19 +136,50 @@ public class PlayingActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
 
-
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
             p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
             p4Hand= MJObj.findMyHand((MainApp.myTurn+3)%4);
 
-           p1_handadapter.notifyDataSetChanged();
-           p2_handadapter.notifyDataSetChanged();
-           p3_handadapter.notifyDataSetChanged();
-           p4_handadapter.notifyDataSetChanged();
+            p1_handadapter.notifyDataSetChanged();
+            p2_handadapter.notifyDataSetChanged();
+            p3_handadapter.notifyDataSetChanged();
+            p4_handadapter.notifyDataSetChanged();
+            seaCards=MJObj.getSeaCards();
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-               seaCards=MJObj.getSeaCards();
+        }
+    };
 
+    ValueEventListener valueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            MJObj = dataSnapshot.getValue(OriginMJ.class);
+            Log.v("leo","DataChange!");
+            if(MJObj.getWhosTurn()==MainApp.myTurn){
+                btn_mask.setVisibility(View.INVISIBLE);
+                //摸牌
+                p1Hand.add(MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
+                MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
+
+                MJObj.setMyHand(p1Hand);
+
+
+            }else{
+                btn_mask.setVisibility(View.VISIBLE);
+            }
+            p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
+            p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
+            p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
+            p4Hand= MJObj.findMyHand((MainApp.myTurn+3)%4);
+
+            p1_handadapter.notifyDataSetChanged();
+            p2_handadapter.notifyDataSetChanged();
+            p3_handadapter.notifyDataSetChanged();
+            p4_handadapter.notifyDataSetChanged();
+            seaCards=MJObj.getSeaCards();
         }
 
         @Override
@@ -164,57 +198,7 @@ public class PlayingActivity extends AppCompatActivity {
 
 
     ///調配器
-    public class HansListAdapter extends RecyclerView.Adapter<HansListAdapter.ViewHolder> implements ItemMoveSwipeListener{
-        @NonNull
-        @Override
-        public HansListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.handcard_recyclerview,null);
-            HansListAdapter.ViewHolder viewHolder=new ViewHolder(view);
-            return viewHolder;
-        }
 
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-            ImageView iv = holder.iv;
-            holder.itemView.setTag(position);//将position保存在itemView的tag中，一边点击时获取
-            iv.setImageResource(imgURI(p1Hand.get(position)));
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return p1Hand.size();
-        }
-
-        /////實做介面/////
-        @Override
-        public boolean onItemMove(int fromPosition, int toPosition) {
-            Collections.swap(p1Hand, fromPosition, toPosition);
-            notifyItemMoved(fromPosition, toPosition);
-            return true;
-        }
-
-        @Override
-        public void onItemSwipe( int position) {
-            seaCards.add(p1Hand.get(position));
-            seaAdapter.notifyItemChanged(position);
-            p1Hand.remove(position);
-            myRef.child("p"+(MainApp.myTurn%4+1)+"Hand").setValue(p1Hand);
-            myRef.child("seaCards").setValue(seaCards);
-
-
-            notifyItemRemoved(position);
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder{
-            ImageView iv;
-            public ViewHolder(View v){
-                super(v);
-                iv=v.findViewById(R.id.iv_handCards);
-            }
-        }
-    }
     public interface ItemMoveSwipeListener {
         /**
          * 設置1個監聽的interface
@@ -270,6 +254,67 @@ public class PlayingActivity extends AppCompatActivity {
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             // 透過itemMoveSwipeListener的onItemSwipe，讓adapter實作該方法
             itemMoveSwipeListener.onItemSwipe(viewHolder.getAdapterPosition());
+        }
+    }
+
+    public class p1_HansListAdapter extends RecyclerView.Adapter<p1_HansListAdapter.ViewHolder> implements ItemMoveSwipeListener{
+        @NonNull
+        @Override
+        public p1_HansListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.handcard_recyclerview,null);
+            p1_HansListAdapter.ViewHolder viewHolder=new ViewHolder(view);
+            return viewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+            ImageView iv = holder.iv;
+            holder.itemView.setTag(position);//将position保存在itemView的tag中，一边点击时获取
+            iv.setImageResource(imgURI(p1Hand.get(position)));
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return p1Hand.size();
+        }
+
+        /////實做介面/////
+        @Override
+        public boolean onItemMove(int fromPosition, int toPosition) {
+            Collections.swap(p1Hand, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
+
+        //打牌
+        @Override
+        public void onItemSwipe( int position) {
+            seaCards.add(p1Hand.get(position));
+            seaAdapter.notifyItemChanged(position);
+            p1Hand.remove(position);
+            //改為物件內容
+            Collections.sort(p1Hand,Collections.<Integer>reverseOrder());
+            MJObj.setMyHand(p1Hand);            //myRef.child("p"+(MainApp.myTurn%4+1)+"Hand").setValue(p1Hand);
+            MJObj.setSeaCards(seaCards);        //myRef.child("seaCards").setValue(seaCards);
+
+
+
+            //只要手牌打出去就改Firebase 換下一位
+            MJObj.setWhosTurn((MainApp.myTurn+1)%4);
+            myRef.setValue(MJObj); //同步物件
+
+
+            notifyItemRemoved(position);
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder{
+            ImageView iv;
+            public ViewHolder(View v){
+                super(v);
+                iv=v.findViewById(R.id.iv_handCards);
+            }
         }
     }
 

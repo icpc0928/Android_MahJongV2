@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class OriginMJ {
-    private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower , myHand,myOut,myFlower;
+    private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower ;
     private ArrayList<Integer> MJCards ,seaCards, lastCards;
     private int whosTurn , needPon,needEat ,whoWin;
 
@@ -30,6 +30,8 @@ public class OriginMJ {
         p4Flower = new ArrayList<>();
 
         seaCards = new ArrayList<>();
+
+        whosTurn = -1;
 
 
 
@@ -116,6 +118,19 @@ public class OriginMJ {
     }
 
 
+    public void setMyHand(ArrayList<Integer> myHand ){
+        if (MainApp.myTurn==0){
+            p1Hand = myHand;
+        }else if(MainApp.myTurn==1){
+            p2Hand = myHand;
+        }else if(MainApp.myTurn==2){
+            p3Hand = myHand;
+        }else if(MainApp.myTurn==3){
+            p4Hand = myHand;
+        }
+    }
+
+
     public ArrayList<Integer> getP1Hand(){
         return p1Hand;
     }
@@ -142,8 +157,20 @@ public class OriginMJ {
         return p4Out;
     }
 
+    public void setSeaCards(ArrayList<Integer> seaCards){
+        this.seaCards = seaCards;
+    }
+
     public ArrayList<Integer> getSeaCards(){
         return seaCards;
+    }
+
+    public void setWhosTurn(int x){
+         whosTurn=x;
+    }
+
+    public int getWhosTurn(){
+        return whosTurn;
     }
 
 

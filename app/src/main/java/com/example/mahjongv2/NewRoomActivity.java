@@ -246,6 +246,7 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj.addMJCards(cards);
             MJObj.addLastCards(MJObj.getMJCards());
             MJObj.setAllHand();
+            MJObj.setWhosTurn(0);  //一開始由0號摸牌
 
 
             gameRef = database.getReference(lastId+"gaming");
