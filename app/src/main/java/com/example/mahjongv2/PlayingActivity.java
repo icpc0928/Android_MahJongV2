@@ -33,8 +33,10 @@ public class PlayingActivity extends AppCompatActivity {
     private GridLayoutManager gridLayoutManager;
     private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea;
     private Button btn_mask;
+    private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
 
     private ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards;
+
 
     private p1_HansListAdapter p1_handadapter;
     private p2_HansListAdapter p2_handadapter;
@@ -59,8 +61,13 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p2Hand=findViewById(R.id.rv_p2HandCards);
         rv_p3Hand=findViewById(R.id.rv_p3HandCards);
         rv_p4Hand=findViewById(R.id.rv_p4HandCards);
+        iv_p2GetCard=findViewById(R.id.iv_p2GetCard);
+        iv_p3GetCard=findViewById(R.id.iv_p3GetCard);
+        iv_p4GetCard=findViewById(R.id.iv_p4GetCard);
         rv_sea=findViewById(R.id.rv_sea);
         btn_mask = findViewById(R.id.btn_mask);
+
+
 
         //測試用firebase
         database = FirebaseDatabase.getInstance();
@@ -111,16 +118,12 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p4Hand.setAdapter(p4_handadapter);
 
         //海底
-        gridLayoutManager=new GridLayoutManager(this,12);
-//        gridLayoutManager.
+        gridLayoutManager=new GridLayoutManager(this,19);
+
         //同手牌
         rv_sea.setLayoutManager(gridLayoutManager);
         seaAdapter=new seaAdapter();
         rv_sea.setAdapter(seaAdapter);
-        //測試用
-        //tv_test.setText("iam: "+MainApp.myTurn);
-
-
 
 
 
@@ -158,16 +161,30 @@ public class PlayingActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
             Log.v("leo","DataChange!");
-            if(MJObj.getWhosTurn()==MainApp.myTurn){
+            // if條件內放這個 MJObj.getWhosTurn()==MainApp.myTurn
+            if(true){
                 btn_mask.setVisibility(View.INVISIBLE);
+                iv_p2GetCard.setVisibility(View.INVISIBLE);
+                iv_p3GetCard.setVisibility(View.INVISIBLE);
+                iv_p4GetCard.setVisibility(View.INVISIBLE);
                 //摸牌
-                p1Hand.add(MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
+                p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
                 MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
-
                 MJObj.setMyHand(p1Hand);
-
-
             }else{
+                if(MJObj.getWhosTurn()==(MainApp.myTurn+1)%4){
+                    iv_p2GetCard.setVisibility(View.VISIBLE);
+                    iv_p3GetCard.setVisibility(View.INVISIBLE);
+                    iv_p4GetCard.setVisibility(View.INVISIBLE);
+                }else if(MJObj.getWhosTurn()==(MainApp.myTurn+2)%4){
+                    iv_p2GetCard.setVisibility(View.INVISIBLE);
+                    iv_p3GetCard.setVisibility(View.VISIBLE);
+                    iv_p4GetCard.setVisibility(View.INVISIBLE);
+                }else if(MJObj.getWhosTurn()==(MainApp.myTurn+3)%4){
+                    iv_p2GetCard.setVisibility(View.INVISIBLE);
+                    iv_p3GetCard.setVisibility(View.INVISIBLE);
+                    iv_p4GetCard.setVisibility(View.VISIBLE);
+                }
                 btn_mask.setVisibility(View.VISIBLE);
             }
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己

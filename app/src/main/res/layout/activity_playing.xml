@@ -9,10 +9,10 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_p1HandCards"
-        android:layout_width="641dp"
+        android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_marginRight="100dp"
         />
 
 
@@ -39,11 +39,23 @@
         android:layout_above="@id/rl_p1Area"
         android:layout_alignParentLeft="true"
         >
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p4HandCards"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
             android:textSize="20sp"
+            android:layout_marginBottom="30dp"
+            />
+        <ImageView
+            android:id="@+id/iv_p4GetCard"
+            android:layout_width="39dp"
+            android:layout_height="52dp"
+            android:layout_alignParentBottom="true"
+            android:rotation="90"
+            android:background="@drawable/mj60"
+            android:visibility="invisible"
             />
 
     </RelativeLayout>
@@ -54,12 +66,24 @@
         android:layout_above="@id/rl_p1Area"
         android:layout_alignParentRight="true"
         >
+        <ImageView
+            android:id="@+id/iv_p2GetCard"
+            android:layout_width="39dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="10dp"
+            android:rotation="270"
+            android:background="@drawable/mj60"
+            android:visibility="invisible"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p2HandCards"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="60dp"
             android:textSize="20sp"
             />
+
 
     </RelativeLayout>
     <RelativeLayout
@@ -70,12 +94,22 @@
         android:layout_toRightOf="@id/rl_p4Area"
         android:layout_toLeftOf="@id/rl_p2Area"
         >
+        <ImageView
+            android:id="@+id/iv_p3GetCard"
+            android:layout_width="39dp"
+            android:layout_height="52dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/mj60"
+            android:visibility="invisible"
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p3HandCards"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginLeft="60dp"
             />
+
 
     </RelativeLayout>
 
