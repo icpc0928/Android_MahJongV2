@@ -2,6 +2,9 @@ package com.example.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -35,6 +38,7 @@ public class PlayingActivity extends AppCompatActivity {
     private Button btn_mask;
     private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
 
+
     private ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards;
 
 
@@ -45,6 +49,12 @@ public class PlayingActivity extends AppCompatActivity {
     private seaAdapter seaAdapter;
 
     String uri = "@drawable/"+"mj";
+
+    private FragmentManager frgm=getSupportFragmentManager();
+    private FragmentTransaction frgT;
+    private framlayout  framlayout;
+
+
 
     //Firebase
     private FirebaseDatabase database;
@@ -67,6 +77,10 @@ public class PlayingActivity extends AppCompatActivity {
         rv_sea=findViewById(R.id.rv_sea);
         btn_mask = findViewById(R.id.btn_mask);
 
+
+
+        //framlayout
+        framlayout=new framlayout();
 
 
         //測試用firebase
@@ -139,6 +153,8 @@ public class PlayingActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
 
+
+
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
             p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
@@ -161,6 +177,25 @@ public class PlayingActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
             Log.v("leo","DataChange!");
+
+            //把吃碰槓叫出來
+
+
+//            frgm.beginTransaction().add(R.id.framlayout, framlayout).commit();
+            frgm.beginTransaction().add(R.id.framlayout,framlayout.EatPongGongWhoo(true,true,false,false)).commit();
+
+
+
+
+
+
+
+
+
+
+
+
+
             // if條件內放這個 MJObj.getWhosTurn()==MainApp.myTurn
             if(true){
                 btn_mask.setVisibility(View.INVISIBLE);
@@ -213,6 +248,13 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
 
+
+    //給fragment使用的
+    //關閉fragment
+    public void closeFragment(){
+        frgT=frgm.beginTransaction();
+        frgT.remove(framlayout).commit();
+    }
 
     ///調配器
 

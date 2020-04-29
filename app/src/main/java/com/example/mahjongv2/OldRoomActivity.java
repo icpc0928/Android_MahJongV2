@@ -61,6 +61,7 @@ public class OldRoomActivity extends AppCompatActivity {
         myRef = database.getReference(MainApp.RoomId);
         Log.v("leo","++"+myRef.getKey());
 
+
         myRef.addListenerForSingleValueEvent(singleListener);
         myRef.addValueEventListener(listener);
     }
