@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +33,7 @@ public class framlayout extends Fragment{
     private View view;
     private PlayingActivity playingActivity;
     private Button eat,pong,gong,cancel,whoo;
+    private MyHandler handler;
     private View.OnClickListener clickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -83,10 +86,13 @@ public class framlayout extends Fragment{
             cancel.setOnClickListener(clickListener);
             whoo.setOnClickListener(clickListener);
 
+            handler = new MyHandler();
+
             if(getArguments()!=null){
+
                 boolean[] temp=getArguments().getBooleanArray("name");
                 //...判斷陣列內的true false決定調用哪個按鈕消失
-                GongInvisible();
+                setButton(temp[0],temp[1],temp[2],temp[3]);
             }
 
 
@@ -109,6 +115,13 @@ public class framlayout extends Fragment{
 
     }
 
+    @Override
+    public void onDestroy() {
+        timer.cancel();
+        timer.purge();
+
+        super.onDestroy();
+    }
 
     //
     private class DoNothing extends TimerTask{
@@ -124,14 +137,29 @@ public class framlayout extends Fragment{
 
         @Override
         public void run() {
+            Bundle bundle = new Bundle();
             for (int i=5;i>=0;i--){
+                Message msg = new Message();
                 try {
+                    bundle.putInt("time",i);
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
                     Thread.sleep(1000);
-                    count_text.setText("剩餘:"+i+"秒");
                 } catch (Exception e) {
                     Log.v("wei","countdown_error:"+e.toString());
                 }
             }
+        }
+    }
+    //用來處理每次收到數據要怎麼更新自己頁面
+    private class MyHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+//            每次收到數據
+            Bundle b = msg.getData();
+            int time = b.getInt("time");
+            count_text.setText("剩餘:"+time+"秒");
         }
     }
 
@@ -154,21 +182,15 @@ public class framlayout extends Fragment{
     }
 
 
-    public void EatInvisible(){
-        eat.setVisibility(View.INVISIBLE);
-    }
 
-    public void PongInvisible(){
-        pong.setVisibility(View.INVISIBLE);
-    }
 
-    public void GongInvisible(){
-        gong.setVisibility(View.INVISIBLE);
-    }
-    public void WhooInvisible(){
-        whoo.setVisibility(View.INVISIBLE);
-    }
+    public void setButton(boolean a,boolean b,boolean c,boolean d){
+        if (a) eat.setVisibility(View.INVISIBLE);
+        if (b) pong.setVisibility(View.INVISIBLE);
+        if (c) gong.setVisibility(View.INVISIBLE);
+        if (d) whoo.setVisibility(View.INVISIBLE);
 
+    }
 
 
 

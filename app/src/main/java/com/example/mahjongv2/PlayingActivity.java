@@ -182,7 +182,8 @@ public class PlayingActivity extends AppCompatActivity {
 
 
 //            frgm.beginTransaction().add(R.id.framlayout, framlayout).commit();
-            frgm.beginTransaction().add(R.id.framlayout,framlayout.EatPongGongWhoo(true,true,false,false)).commit();
+            framlayout=framlayout.EatPongGongWhoo(true,true,false,false);
+            frgm.beginTransaction().add(R.id.framlayout,framlayout).commit();
 
 
 
