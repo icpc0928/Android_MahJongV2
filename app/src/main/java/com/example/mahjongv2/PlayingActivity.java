@@ -175,26 +175,24 @@ public class PlayingActivity extends AppCompatActivity {
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            MJObj = dataSnapshot.getValue(OriginMJ.class);
-            Log.v("leo","DataChange!");
-
-            //把吃碰槓叫出來
-
-
-//            frgm.beginTransaction().add(R.id.framlayout, framlayout).commit();
-            framlayout=framlayout.EatPongGongWhoo(true,true,false,false);
-            frgm.beginTransaction().add(R.id.framlayout,framlayout).commit();
+            MJObj = dataSnapshot.getValue(OriginMJ.class);  //下載firebase物件
 
 
 
-
-
-
-
-
-
-
-
+            if(MJObj.getSeaCards().size()>0) {
+                int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+                //判斷MJObj.p1Hand有沒有能吃碰槓胡的條件
+                //把.吃.碰.槓.胡.叫出來
+                boolean bEat,bPong,bGong,bWhoo;
+                bEat= canEat(lastSeaCard);
+                bPong=canPong(lastSeaCard);
+                bGong=canGong(lastSeaCard);
+                bWhoo=canWhoo(lastSeaCard);
+                if ( bEat||bPong||bGong||bWhoo ) {
+                    framlayout = framlayout.EatPongGongWhoo(bEat, bPong, bGong, bWhoo);
+                    frgm.beginTransaction().add(R.id.framlayout, framlayout).commit();
+                }
+            }
 
 
             // if條件內放這個 MJObj.getWhosTurn()==MainApp.myTurn
@@ -243,7 +241,6 @@ public class PlayingActivity extends AppCompatActivity {
 
     //弄個工具來將cards[i] 跟卡片路徑做個連接  i從0開始發
     private int imgURI(int i){
-
         int getCardsImg = getResources().getIdentifier(uri+i,null,getPackageName());
         return getCardsImg;
     }
@@ -258,7 +255,6 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
     ///調配器
-
     public interface ItemMoveSwipeListener {
         /**
          * 設置1個監聽的interface
@@ -316,7 +312,6 @@ public class PlayingActivity extends AppCompatActivity {
             itemMoveSwipeListener.onItemSwipe(viewHolder.getAdapterPosition());
         }
     }
-
     public class p1_HansListAdapter extends RecyclerView.Adapter<p1_HansListAdapter.ViewHolder> implements ItemMoveSwipeListener{
         @NonNull
         @Override
@@ -363,7 +358,7 @@ public class PlayingActivity extends AppCompatActivity {
 
             //只要手牌打出去就改Firebase 換下一位
             MJObj.setWhosTurn((MainApp.myTurn+1)%4);
-            myRef.setValue(MJObj); //同步物件
+            myRef.setValue(MJObj); //同步物件 上傳到firebase
 
 
             notifyItemRemoved(position);
@@ -377,7 +372,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
-
     public class p2_HansListAdapter extends RecyclerView.Adapter<p2_HansListAdapter.ViewHolder>{
         @NonNull
         @Override
@@ -407,7 +401,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
-
     public class p3_HansListAdapter extends RecyclerView.Adapter<p3_HansListAdapter.ViewHolder>{
         @NonNull
         @Override
@@ -437,7 +430,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
-
     public class p4_HansListAdapter extends RecyclerView.Adapter<p4_HansListAdapter.ViewHolder>{
         @NonNull
         @Override
@@ -470,7 +462,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
-
     private class seaAdapter extends RecyclerView.Adapter<seaAdapter.viewHolder>{
 
         @NonNull
@@ -500,4 +491,62 @@ public class PlayingActivity extends AppCompatActivity {
         }
     }
 
+    private boolean canEat(int lastSeaCard){
+        boolean result = false;
+        //1.尾張需在11~19.21~29.31~39之間
+        if(lastSeaCard <40){
+            //2.三種吃牌條件  -2-1 , -1+1, +1+2 (需先將尾張取個位數 ==1 判斷+1.+2  ==9 判斷-1-2  其餘判斷三種)
+            if(lastSeaCard%10==1 && MJObj.getP1Hand().contains(lastSeaCard+1) && MJObj.getP1Hand().contains(lastSeaCard+2)){  //判斷+1.+2
+                result= true;
+            }else if(lastSeaCard%10==9 && MJObj.getP1Hand().contains(lastSeaCard-1) && MJObj.getP1Hand().contains(lastSeaCard-2)){  //判斷-1.-2
+                result= true;
+            }else if((MJObj.getP1Hand().contains(lastSeaCard-2)&&MJObj.getP1Hand().contains(lastSeaCard-1)) ||(MJObj.getP1Hand().contains(lastSeaCard+1)&&MJObj.getP1Hand().contains(lastSeaCard-1))
+                    ||(MJObj.getP1Hand().contains(lastSeaCard+1)&&MJObj.getP1Hand().contains(lastSeaCard+2))){
+                result= true;
+            }
+        }
+        return result;
+    }
+    private boolean canPong(int lastSeaCard){   //僅需判斷手牌中是否有2個以上的lastSeaCard
+        boolean result = false;
+        int count=0;
+        for(int i=0;i<MJObj.getP1Hand().size();i++){
+            if(lastSeaCard==MJObj.getP1Hand().get(i)){
+                count++;
+                if(count ==2){
+                    result=true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    private boolean canGong(int lastSeaCard){  //僅需判斷手牌中是否有3個lastSeaCard
+        boolean result = false;
+        int count=0;
+        for(int i=0;i<MJObj.getP1Hand().size();i++){
+            if(lastSeaCard==MJObj.getP1Hand().get(i)){
+                count++;
+                if(count == 3){
+                    result=true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    private boolean canWhoo(int lastSeaCard){
+        boolean result ;
+        WhooAlgorithm whooAlgorithm=new WhooAlgorithm();
+        ArrayList<Integer> temp ;
+        temp=(ArrayList<Integer>)MJObj.getP1Hand().clone();
+        temp.add(lastSeaCard);
+        Collections.sort(temp);
+        result = whooAlgorithm.canWhoo(temp);
+        return result;
+    }
+
+    public OriginMJ getMJObj(){
+        return MJObj;
+    }
 }

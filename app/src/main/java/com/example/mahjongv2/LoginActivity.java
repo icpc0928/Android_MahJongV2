@@ -33,7 +33,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_login;
     private TextView link_regist;
     private ProgressBar loading;
-    private static String URL_LOGIN = "http://192.168.0.101/android_register_login/login.php";
+//    private static String URL_LOGIN = "http://192.168.0.101/android_register_login/login.php";
+    private static String URL_LOGIN = "http://leo0928.synology.me/android_register_login/login.php";
     SessionManager sessionManager;
 
     @Override

@@ -36,12 +36,16 @@ public class RoomsActivity extends AppCompatActivity {
 
     private Button btn_createRoom ,btn_gotoRoom , btn_gotoHome , btn_refreshList;
     private ListView listView;
-    private static String URL_ROOMS = "http://192.168.0.101/android_register_login/roomlist.php";
+
+//    private static String URL_ROOMS = "http://192.168.0.101/android_register_login/roomlist.php";
+    private static String URL_ROOMS = "http://leo0928.synology.me/android_register_login/roomlist.php";
+
     private SimpleAdapter adapter;
     private String[] from = {"id","players"};
     private int[] to ={R.id.item_id,R.id.item_players};
     private LinkedList<HashMap<String,String>> data = new LinkedList<>();
     private String selectedRoomId="";
+    public String selectedRoomPlayers="";
     private View selectedView = null;
 
 
@@ -97,13 +101,16 @@ public class RoomsActivity extends AppCompatActivity {
                 initListView();
             }
         });
-
+        //加入房間按鈕監聽
         btn_gotoRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(selectedRoomId != ""){
                     MainApp.RoomId = selectedRoomId;
+
                     Intent intent = new Intent(RoomsActivity.this,OldRoomActivity.class);
+
+
                     startActivity(intent);
                     RoomsActivity.this.finish();
                 }else {
@@ -115,18 +122,21 @@ public class RoomsActivity extends AppCompatActivity {
 
     }
 
+
 //顯示listView列表 從資料庫
     private void roomList(){
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_ROOMS,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.v("leo","roomListResponse="+response);
                         try {
+
                             JSONObject jsonObject = new JSONObject(response);
                             //拿到Obj叫parseJSON去做
                             parseJSON(jsonObject);
                         } catch (Exception e) {
-                            Log.v("leo","roomList()RespJSON Exc : "+e.toString());
+                            Log.v("leo","roomListJSON Exc : "+e.toString());
                         }
                     }
                 },
@@ -170,6 +180,8 @@ public class RoomsActivity extends AppCompatActivity {
 //            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
 //            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
             selectedRoomId = data.get(position).get("id");
+            selectedRoomPlayers= data.get(position).get("players");
+
 
         }
     };

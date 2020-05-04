@@ -34,13 +34,20 @@ public class framlayout extends Fragment{
     private PlayingActivity playingActivity;
     private Button eat,pong,gong,cancel,whoo;
     private MyHandler handler;
+
+
+
+
     private View.OnClickListener clickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.eat:
                     //點了吃
-                    //...
+
+//                    playingActivity.getMJObj().getP1Hand().remove(playingActivity.getMJObj().getP1Hand().size()-1);
+//                    Log.v("leo",playingActivity.getMJObj().getP1Hand().toString());
+
                     break;
                 case R.id.pong:
                     //點了碰
@@ -113,6 +120,7 @@ public class framlayout extends Fragment{
         super.onAttach(context);
         playingActivity=(PlayingActivity)context;
 
+
     }
 
     @Override
@@ -173,7 +181,7 @@ public class framlayout extends Fragment{
              ) {
             temp2.add(param);
         }
-        for(int i=0;i<3;i++){
+        for(int i=0;i<4;i++){
             temp[i]=temp2.get(i);
         }
         bundle.putBooleanArray("name",temp);
@@ -185,10 +193,10 @@ public class framlayout extends Fragment{
 
 
     public void setButton(boolean a,boolean b,boolean c,boolean d){
-        if (a) eat.setVisibility(View.INVISIBLE);
-        if (b) pong.setVisibility(View.INVISIBLE);
-        if (c) gong.setVisibility(View.INVISIBLE);
-        if (d) whoo.setVisibility(View.INVISIBLE);
+        if (!a) eat.setVisibility(View.INVISIBLE);
+        if (!b) pong.setVisibility(View.INVISIBLE);
+        if (!c) gong.setVisibility(View.INVISIBLE);
+        if (!d) whoo.setVisibility(View.INVISIBLE);
 
     }
 

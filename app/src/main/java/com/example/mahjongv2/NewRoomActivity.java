@@ -46,9 +46,12 @@ public class NewRoomActivity extends AppCompatActivity {
     private Button btn_starGame , btn_gotoRooms;
     private TextView myRoomID,player1,player2,player3,player4;
 
-
-    private static String URL_CREATE= "http://192.168.0.101/android_register_login/createroom.php";
-    private static String URL_DELETE= "http://192.168.0.101/android_register_login/deleteroom.php";
+        //http://leo0814.synology.me/android_register_login
+//    private static String URL_CREATE= "http://192.168.0.101/android_register_login/createroom.php";
+//    private static String URL_DELETE= "http://192.168.0.101/android_register_login/deleteroom.php";
+    private static String URL_CREATE= "http://leo0928.synology.me/android_register_login/createroom.php";
+    private static String URL_DELETE= "http://leo0928.synology.me/android_register_login/deleteroom.php";
+    private static String URL_SETROOMNUM="http://leo0928.synology.me/android_register_login/setroomnum.php";
     SessionManager sessionManager;
     String name  , lastId;
     Timer timer = new Timer();
@@ -90,29 +93,20 @@ public class NewRoomActivity extends AppCompatActivity {
         createRoom();
         MainApp.myTurn =0;
     }
-
-
     //只要此頁面離開自動刪除 兩個資料庫 並將此頁面結束 所有指向
     @Override
     protected void onPause() {
         myRef.child("names").child("0").setValue("");
         //解除Firebase的監聽
         myRef.removeEventListener(listener);
-
         //延遲執行刪除資料庫行為
         timer.schedule(removeFirebaseDataBase,8000);
-
-
         //返回要做刪除房間的資料
         deleteRoom();
         //將此頁面關閉並強制指回房間列表的頁面  此地有點怪，感覺點擊"開始遊戲'跳轉頁面後不知道這裡會不會有問題   且走且看  TODO 是不是能夠不用這行??
 //        backToRooms(null);
-
         super.onPause();
     }
-
-
-
     //創建一筆房間資料表  並且拿出最後一個資料表的ID(也就是自己的)   然後要再創一個Firebase的房間供四人
     private void createRoom(){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_CREATE,
@@ -161,11 +155,13 @@ public class NewRoomActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.v("leo","goodRes"+response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.v("leo","delRoom ResErr"+error);
                     }
                 })
                 {
@@ -186,7 +182,6 @@ public class NewRoomActivity extends AppCompatActivity {
         member.addName("");
         member.addName("");
         member.addName("");
-
         member.setIsReady(false);
         myRef = database.getReference(lastId);
         myRef.setValue(member);
@@ -202,9 +197,13 @@ public class NewRoomActivity extends AppCompatActivity {
             player2.setText(obj.getNames().get(1));
             player3.setText(obj.getNames().get(2));
             player4.setText(obj.getNames().get(3));
-
-
-
+            int players =0 ;
+            for( int i=0;i<obj.getNames().size();i++){
+                if(!obj.getNames().get(i).equals("")){
+                    players++;
+                }
+            }
+            setRoomNum(players);  //改變RoomsList人數
         }
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -224,7 +223,6 @@ public class NewRoomActivity extends AppCompatActivity {
         public void run() {
             //也要刪除Firebase內的資料  會閃退但是還是會刪除資料  原因在於Firebase資料庫監聽
             myRef.removeValue();
-
         }
     };
 
@@ -289,5 +287,29 @@ public class NewRoomActivity extends AppCompatActivity {
 
         return cards;
     }
-
+    //有人進來就改變RoomsList人數
+    private void setRoomNum(final int players){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_SETROOMNUM,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                params.put("roomID",lastId);
+                params.put("players",Integer.toString(players));
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
 }

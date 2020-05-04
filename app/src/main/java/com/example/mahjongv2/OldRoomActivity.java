@@ -12,6 +12,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class OldRoomActivity extends AppCompatActivity {
 
@@ -34,6 +42,7 @@ public class OldRoomActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private Member obj;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +106,6 @@ public class OldRoomActivity extends AppCompatActivity {
                backToRooms(null);
            }
 
-
-
-
-
-
-
         }
 
         @Override
@@ -144,6 +147,7 @@ public class OldRoomActivity extends AppCompatActivity {
         if(obj.getNames().get(0).equals("")){
             Toast.makeText(this,"房主離開",Toast.LENGTH_SHORT).show();
         }
+
         //取消拿到的ID
         MainApp.RoomId="";
 
@@ -157,4 +161,5 @@ public class OldRoomActivity extends AppCompatActivity {
         startActivity(intent);
         OldRoomActivity.this.finish();
     }
+
 }
