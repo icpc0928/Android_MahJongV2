@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
 
+
     >
 
 
@@ -15,7 +16,8 @@
         android:layout_weight="1"
         android:textSize="30sp"
         android:gravity="center"
-        android:layout_margin="5dp"
+        android:layout_marginVertical="3dp"
+
 
         />
     <TextView
@@ -25,7 +27,11 @@
         android:layout_weight="1"
         android:textSize="30sp"
         android:gravity="center"
-        android:layout_margin="5dp"
+        android:layout_marginVertical="3dp"
+
+
+
+
         />
 
 

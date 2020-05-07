@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -176,7 +177,7 @@ public class RoomsActivity extends AppCompatActivity {
                 selectedView.setBackgroundColor(Color.alpha(256));
             }
             selectedView = view;
-            selectedView.setBackgroundColor(Color.GRAY);
+            selectedView.setBackgroundResource(R.drawable.gradient_listview);
 //            Log.v("leo","data:"+data.get(position));//拿到ListView內的資料的物件(HashMap)
 //            Log.v("leo","="+data.get(position).get("id"));//用HashMap 以 物件屬性名稱 取得該值
             selectedRoomId = data.get(position).get("id");

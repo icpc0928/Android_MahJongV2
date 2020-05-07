@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context=".RoomsActivity">
+    tools:context=".RoomsActivity"
+
+    >
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -14,6 +16,7 @@
         android:layout_weight="1"
 
         >
+
         <Button
             android:id="@+id/btn_createRoom"
             android:text="創建房間"
@@ -25,6 +28,7 @@
             android:layout_marginRight="30dp"
             android:layout_marginTop="30dp"
         />
+
         <Button
             android:id="@+id/btn_gotoRoom"
             android:text="加入房間"
@@ -70,6 +74,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical"
+
         >
 
         <LinearLayout

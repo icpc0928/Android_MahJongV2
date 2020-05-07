@@ -243,8 +243,10 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj = new OriginMJ();
             MJObj.addMJCards(cards);
             MJObj.addLastCards(MJObj.getMJCards());
-            MJObj.setAllHand();
+            MJObj.setAllHand();     //初始化p1~p4的手牌
+            MJObj.setAllOut();      //初始化p1~p4吃碰牌
             MJObj.setWhosTurn(0);  //一開始由0號摸牌
+            MJObj.setIsEPGW(false);
 
 
             gameRef = database.getReference(lastId+"gaming");

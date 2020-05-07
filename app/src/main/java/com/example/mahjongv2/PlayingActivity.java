@@ -1,8 +1,8 @@
 package com.example.mahjongv2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,18 +28,17 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class PlayingActivity extends AppCompatActivity {
-    private LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager;
-    private GridLayoutManager gridLayoutManager;
-    private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea;
+    private LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager,p1Out_linearLayoutManager,p2Out_linearLayoutManager,p3Out_linearLayoutManager,p4Out_linearLayoutManager;
+    private GridLayoutManager gridLayoutManager,p1_gridLayoutManager;
+    private RZItemTouchHelperCallback mycallback;
+    private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea,rv_p1Out,rv_p2Out,rv_p3Out,rv_p4Out;
     private Button btn_mask;
     private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
 
 
-    private ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards;
+    public ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards,p1Out,temp_p1Out,p2Out,p3Out,p4Out;
 
 
     private p1_HansListAdapter p1_handadapter;
@@ -47,19 +46,23 @@ public class PlayingActivity extends AppCompatActivity {
     private p3_HansListAdapter p3_handadapter;
     private p4_HansListAdapter p4_handadapter;
     private seaAdapter seaAdapter;
-
+    private p1Out_ListAdapter p1Out_listAdapter;
+    private p2Out_ListAdapter p2Out_listAdapter;
+    private p3Out_ListAdapter p3Out_listAdapter;
+    private p4Out_ListAdapter p4Out_listAdapter;
     String uri = "@drawable/"+"mj";
 
     private FragmentManager frgm=getSupportFragmentManager();
     private FragmentTransaction frgT;
     private framlayout  framlayout;
+    private EatList eatList;
 
 
 
     //Firebase
     private FirebaseDatabase database;
     private DatabaseReference myRef;
-    private OriginMJ MJObj ;
+    public OriginMJ MJObj ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +79,13 @@ public class PlayingActivity extends AppCompatActivity {
         iv_p4GetCard=findViewById(R.id.iv_p4GetCard);
         rv_sea=findViewById(R.id.rv_sea);
         btn_mask = findViewById(R.id.btn_mask);
+        rv_p1Out=findViewById(R.id.rv_p1Out);
+        rv_p2Out=findViewById(R.id.rv_p2Out);
+        rv_p3Out=findViewById(R.id.rv_p3Out);
+        rv_p4Out=findViewById(R.id.rv_p4Out);
 
 
 
-        //framlayout
-        framlayout=new framlayout();
 
 
         //測試用firebase
@@ -95,7 +100,11 @@ public class PlayingActivity extends AppCompatActivity {
         p3Hand = new ArrayList<>();
         p4Hand = new ArrayList<>();
         seaCards = new ArrayList<>();
-
+        p1Out =new ArrayList<>();
+        p2Out =new ArrayList<>();
+        p3Out =new ArrayList<>();
+        p4Out =new ArrayList<>();
+        temp_p1Out=new ArrayList<>();
 
 
 
@@ -104,17 +113,50 @@ public class PlayingActivity extends AppCompatActivity {
 
 
         //設置,調整手牌item的配置
+//        p1_gridLayoutManager=new GridLayoutManager(this,16,RecyclerView.VERTICAL,true);
         p1_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,true);
         rv_p1Hand.setLayoutManager(p1_linearLayoutManager);
-        //設置手牌的調變器
+        //設置手牌的調變
         p1_handadapter=new p1_HansListAdapter();
         rv_p1Hand.setAdapter(p1_handadapter);
         //設定子view的滑動動畫
         rv_p1Hand.setItemAnimator(new DefaultItemAnimator());
         //建立ItemTouchHelper實例,把我們的adapter當成監聽傳進去
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RZItemTouchHelperCallback((ItemMoveSwipeListener) p1_handadapter));
+        mycallback=new RZItemTouchHelperCallback((ItemMoveSwipeListener) p1_handadapter);
+        mycallback.setiDragListener(new IDragListener() {
+            @Override
+            public void deleteState(boolean delete) {
+                if (delete){
+                    //假設拖曳到刪除區域
+                    //更改刪除區域顯示的顏色
+                    //顯示出牌的字以提示使用者
+                    //view1.setBackgroundColor(Color.DKGRAY);
+                }else{
+                    //view1.setBackgroundColor(Color.alpha(256));
+                }
+            }
+
+            @Override
+            public void dragState(boolean State) {
+                    //是否在拖曳狀態,控制顯示,不然會閃爍
+                if (State){
+                    //是
+                    //view1.setVisibility(View.VISIBLE);
+                }else{
+                    //否
+                    //view1.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(mycallback);
         itemTouchHelper.attachToRecyclerView(rv_p1Hand);
 
+        //吃碰區
+        p1Out_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false);
+        p1Out_listAdapter=new p1Out_ListAdapter();
+        rv_p1Out.setLayoutManager(p1Out_linearLayoutManager);
+        rv_p1Out.setAdapter(p1Out_listAdapter);
+        rv_p1Out.addItemDecoration(new MyItemDecoration());
 
         //設置其他三家的手牌
         p2_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.VERTICAL,false);
@@ -130,6 +172,23 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p3Hand.setAdapter(p3_handadapter);
         p4_handadapter=new p4_HansListAdapter();
         rv_p4Hand.setAdapter(p4_handadapter);
+        //設置其他三家吃碰區
+        p2Out_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.VERTICAL,false);
+        p3Out_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.HORIZONTAL,false);
+        p4Out_linearLayoutManager=new LinearLayoutManager(this,RecyclerView.VERTICAL,true);
+        p2Out_listAdapter=new p2Out_ListAdapter();
+        p3Out_listAdapter=new p3Out_ListAdapter();
+        p4Out_listAdapter=new p4Out_ListAdapter();
+        rv_p2Out.setLayoutManager(p2Out_linearLayoutManager);
+        rv_p3Out.setLayoutManager(p3Out_linearLayoutManager);
+        rv_p4Out.setLayoutManager(p4Out_linearLayoutManager);
+        rv_p2Out.setAdapter(p2Out_listAdapter);
+        rv_p3Out.setAdapter(p3Out_listAdapter);
+        rv_p4Out.setAdapter(p4Out_listAdapter);
+        rv_p2Out.addItemDecoration(new MyItemDecoration());
+        rv_p3Out.addItemDecoration(new MyItemDecoration());
+        rv_p4Out.addItemDecoration(new MyItemDecoration());
+
 
         //海底
         gridLayoutManager=new GridLayoutManager(this,19);
@@ -138,11 +197,6 @@ public class PlayingActivity extends AppCompatActivity {
         rv_sea.setLayoutManager(gridLayoutManager);
         seaAdapter=new seaAdapter();
         rv_sea.setAdapter(seaAdapter);
-
-
-
-
-
     }
 
 
@@ -178,8 +232,10 @@ public class PlayingActivity extends AppCompatActivity {
             MJObj = dataSnapshot.getValue(OriginMJ.class);  //下載firebase物件
 
 
-
-            if(MJObj.getSeaCards().size()>0) {
+            //true 改成 MJObj內的boolean EPGW
+            //用物件判斷有"誰"要吃碰槓胡 (其中條件是 下家能吃,三家能碰,後兩家能槓,三家能胡)  (如果只有一家,優先權讓給他(例如 對家要碰,下家沒有要吃,下家就要等待)
+            //重點在於等待這件事情!!!!
+            if(MJObj.getSeaCards().size()>0 &&  !MJObj.getIsEPGW()) {
                 int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
                 //判斷MJObj.p1Hand有沒有能吃碰槓胡的條件
                 //把.吃.碰.槓.胡.叫出來
@@ -190,12 +246,13 @@ public class PlayingActivity extends AppCompatActivity {
                 bWhoo=canWhoo(lastSeaCard);
                 if ( bEat||bPong||bGong||bWhoo ) {
                     framlayout = framlayout.EatPongGongWhoo(bEat, bPong, bGong, bWhoo);
-                    frgm.beginTransaction().add(R.id.framlayout, framlayout).commit();
+                    frgT=frgm.beginTransaction();
+                    frgT.add(R.id.framlayout, framlayout).commit();
                 }
             }
 
-
             // if條件內放這個 MJObj.getWhosTurn()==MainApp.myTurn
+            // 另外要增加條件如果有人要吃碰要等待!!!!! ----或許可以寫在上段
             if(true){
                 btn_mask.setVisibility(View.INVISIBLE);
                 iv_p2GetCard.setVisibility(View.INVISIBLE);
@@ -221,15 +278,25 @@ public class PlayingActivity extends AppCompatActivity {
                 }
                 btn_mask.setVisibility(View.VISIBLE);
             }
-            p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
+            p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);     //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
             p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
             p4Hand= MJObj.findMyHand((MainApp.myTurn+3)%4);
+            p1Out = MJObj.findMyOut((MainApp.myTurn+0)%4);      //TODO myTrun= 0|1|2|3; 0=>自己
+            p2Out = MJObj.findMyOut((MainApp.myTurn+1)%4);
+            p3Out = MJObj.findMyOut((MainApp.myTurn+2)%4);
+            p4Out = MJObj.findMyOut((MainApp.myTurn+3)%4);
+
 
             p1_handadapter.notifyDataSetChanged();
             p2_handadapter.notifyDataSetChanged();
             p3_handadapter.notifyDataSetChanged();
             p4_handadapter.notifyDataSetChanged();
+            p1Out_listAdapter.notifyDataSetChanged();
+            p2Out_listAdapter.notifyDataSetChanged();
+            p3Out_listAdapter.notifyDataSetChanged();
+            p4Out_listAdapter.notifyDataSetChanged();
+
             seaCards=MJObj.getSeaCards();
         }
 
@@ -240,12 +307,10 @@ public class PlayingActivity extends AppCompatActivity {
     };
 
     //弄個工具來將cards[i] 跟卡片路徑做個連接  i從0開始發
-    private int imgURI(int i){
+    public int imgURI(int i){
         int getCardsImg = getResources().getIdentifier(uri+i,null,getPackageName());
         return getCardsImg;
     }
-
-
 
     //給fragment使用的
     //關閉fragment
@@ -253,7 +318,102 @@ public class PlayingActivity extends AppCompatActivity {
         frgT=frgm.beginTransaction();
         frgT.remove(framlayout).commit();
     }
+    public void closeEatList(){
+        frgT=frgm.beginTransaction();
+        frgT.remove(eatList).commit();
+    }
 
+    //點選到eatlist fragment
+    public void gotoEatList(){
+        eatList=new EatList();
+        frgT=frgm.beginTransaction();
+        frgT.replace(R.id.framlayout,eatList).commit();
+    }
+    //顯示出吃了什麼
+    public void Eatwhat(int position){//由EatList呼叫,在EatList時已經把可以吃的選項全部存在temp,現在要依照點了哪個item,把選的丟到p1Out
+        if(p1Out.size()==1){
+            p1Out.remove(0);
+        }
+        if (position==0){//選了第一個
+            for (int i=0;i<3;i++){
+                p1Out.add(temp_p1Out.get(i));
+            }
+            p1Out.add(0);//配合四張一組,吃只有三張,第四張為0
+
+            //取得手牌,並刪除
+            p1Hand.remove(temp_p1Out.get(0));
+            p1Hand.remove(temp_p1Out.get(2));
+        }
+        else if (position==1){//選了第二個,可能有3
+            for (int i=3;i<6;i++){
+                p1Out.add(temp_p1Out.get(i));
+            }
+            p1Out.add(0);
+            //取得手牌,並刪除
+            p1Hand.remove(temp_p1Out.get(3));
+            p1Hand.remove(temp_p1Out.get(5));
+        }else if (position==2){//選了第三個
+            for (int i=6;i<9;i++){
+                p1Out.add(temp_p1Out.get(i));
+            }
+            p1Out.add(0);
+            //取得手牌,並刪除
+            p1Hand.remove(temp_p1Out.get(6));
+            p1Hand.remove(temp_p1Out.get(8));
+        }
+        seaCards.remove(seaCards.size()-1);//移除海底最後一張
+        int count=seaAdapter.getItemCount();
+        seaAdapter.notifyItemChanged(count);
+        p1Out_listAdapter.notifyDataSetChanged();
+        temp_p1Out.clear();//清空暫存區
+        //TODO 上傳MJObj
+        updateMJObj(true,0);
+    }
+    //顯示出碰了什麼
+    public void Pongwhat(){
+        int lastSeaCard=MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+        if(p1Out.size()==1){
+            p1Out.remove(0);
+        }
+        for (int i=0;i<3;i++){
+            p1Out.add(lastSeaCard);
+            if (i<=1){
+                p1Hand.remove(p1Hand.indexOf(lastSeaCard));
+            }
+        }
+        p1Out.add(0);//吃碰的第四張為0
+        //更新畫面
+        seaCards.remove(seaCards.size()-1);//移除海底最後一張
+        int count=seaAdapter.getItemCount();
+        seaAdapter.notifyItemChanged(count);
+        p1Out_listAdapter.notifyDataSetChanged();
+        p1_handadapter.notifyDataSetChanged();
+        //TODO 上傳MJObj
+        updateMJObj(true,0);
+    }
+    public void Gongwhat(){
+        int lastSeaCard=MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+        if(p1Out.size()==1){
+            p1Out.remove(0);
+        }
+
+        for (int i=0;i<4;i++){
+            p1Out.add(lastSeaCard);
+            if (i<=2){
+                p1Hand.remove(p1Hand.indexOf(lastSeaCard));
+            }
+        }
+        //更新畫面
+        seaCards.remove(seaCards.size()-1);//移除海底最後一張
+        int count=seaAdapter.getItemCount();
+        seaAdapter.notifyItemChanged(count);
+        p1Out_listAdapter.notifyDataSetChanged();
+
+        //TODO 上傳MJObj
+        updateMJObj(true,0);
+
+
+    }
     ///調配器
     public interface ItemMoveSwipeListener {
         /**
@@ -266,8 +426,22 @@ public class PlayingActivity extends AppCompatActivity {
 
         void onItemSwipe(int position);
     }
+    public interface IDragListener{
+        /**
+         * 是否拖曳到出牌區
+         * @param delete
+         */
+        void deleteState(boolean delete);
+        /**
+         * 是否處於拖曳狀態
+         * @param State
+         */
+        void dragState(boolean State);
+    }
     public class RZItemTouchHelperCallback extends ItemTouchHelper.Callback {
         private ItemMoveSwipeListener itemMoveSwipeListener;
+        private IDragListener iDragListener;
+        private boolean up;
         // 設定1個帶 ItemMoveSwipeListener 的參數建構式
         public RZItemTouchHelperCallback(ItemMoveSwipeListener itemMoveSwipeListener) {
             this.itemMoveSwipeListener = itemMoveSwipeListener;
@@ -281,7 +455,7 @@ public class PlayingActivity extends AppCompatActivity {
          */
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-            int dragFlags=ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+            int dragFlags=ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.DOWN | ItemTouchHelper.UP;
             int swipeFlags = ItemTouchHelper.UP;
             // 如果想讓「移動」或是「滑動」，無效用則設為0即可
             // 再透過 makeMovementFlags()方法去設置
@@ -298,7 +472,11 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             // 透過itemMoveSwipeListener的onItemMove，讓adapter實作該方法
-            return itemMoveSwipeListener.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+            //viewHolder.getAdapterPosition()--->移動到別的item上時,移動起點的item的位置
+            //target.getAdapterPosition()---->移動到別的item上時,移動終點的item的位置
+            int toPosition=target.getAdapterPosition();
+            int fromPosition=viewHolder.getAdapterPosition();
+            return itemMoveSwipeListener.onItemMove(fromPosition, toPosition);
         }
         /**
          * 滑動完成後，要做甚麼事
@@ -310,6 +488,78 @@ public class PlayingActivity extends AppCompatActivity {
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             // 透過itemMoveSwipeListener的onItemSwipe，讓adapter實作該方法
             itemMoveSwipeListener.onItemSwipe(viewHolder.getAdapterPosition());
+        }
+//        /**
+//         *  RecyclerView调用onDraw時调用，調用後會再調用 onChildDrawOver
+//         *  @dx item item滑動距離
+//         */
+//        @Override
+//        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+//            //控制繪畫
+//            //先判斷有沒有設置listener,沒有的話什麼也不執行
+//            if (iDragListener==null){
+//                return;
+//            }
+//            //右下角是0,0
+//            //左上角是-recyclerView.getWidth(),-recyclerView.getHeight()
+//            //假設位置在畫面一半以上,而且是拖曳狀態
+//            if (dY<-recyclerView.getHeight()/2 ){
+//                iDragListener.deleteState(true);//改變背景,up 此時還是 false
+//                //放手-->getAnimationDuration更改up為true,轉而執行以下判斷
+//                if (up) {
+//                    int position=viewHolder.getLayoutPosition();//獲取點選item在adapter上的位置
+//                    //設置該item看不見,原因為remove是在viewHolder動畫執行完成(即回到原本位置後)才會刪除它
+//                    seaCards.add(p1Hand.get(position));
+//                    seaAdapter.notifyItemChanged(position);
+//                    p1Hand.remove(position);
+//                    p1_handadapter.notifyItemRemoved(position);
+//                    Collections.sort(p1Hand,Collections.<Integer>reverseOrder());
+//                    MJObj.setMyHand(p1Hand);            //myRef.child("p"+(MainApp.myTurn%4+1)+"Hand").setValue(p1Hand);
+//                    MJObj.setSeaCards(seaCards);        //myRef.child("seaCards").setValue(seaCards);
+//
+//                    //只要手牌打出去就改Firebase 換下一位
+//                    MJObj.setWhosTurn((MainApp.myTurn+1)%4);
+//                    myRef.setValue(MJObj); //同步物件 上傳到firebase
+//                    //把up改為false,把背景的state改為false,把拖曳狀態改為false
+//                    initData();
+//                    return;
+//                }
+//            }else{//假設位置畫面一半以下
+//                iDragListener.deleteState(false);//改變背景
+//                //把up改為false,避免我第一次出牌但沒移動到出牌區,改出另一張時,手指沒放開就自動觸發up=true
+//                initData();
+//            }
+//            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+//        }
+        //手指離開viewHolder後會調用這個函數,用意是指調用動畫前,接著會自動執行onSelectedChanged
+        @Override
+        public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
+            up = true;
+            return super.getAnimationDuration(recyclerView, animationType, animateDx, animateDy);
+        }
+
+        @Override
+        public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+            //actionState==0,手指放開;==2,手指點按
+            if (actionState==2){
+                iDragListener.dragState(true);
+            }else if (actionState==0){
+                iDragListener.dragState(false);
+            }
+            super.onSelectedChanged(viewHolder, actionState);
+        }
+
+        //設置自己自定義介面,這樣在使用這個類別時,就會要你去實做介面定義的方法
+        public void setiDragListener(IDragListener iDragListener){
+            this.iDragListener=iDragListener;
+        }
+
+        /**
+         * 重置
+         */
+        private void initData() {
+            iDragListener.deleteState(false);
+            up = false;
         }
     }
     public class p1_HansListAdapter extends RecyclerView.Adapter<p1_HansListAdapter.ViewHolder> implements ItemMoveSwipeListener{
@@ -351,16 +601,8 @@ public class PlayingActivity extends AppCompatActivity {
             p1Hand.remove(position);
             //改為物件內容
             Collections.sort(p1Hand,Collections.<Integer>reverseOrder());
-            MJObj.setMyHand(p1Hand);            //myRef.child("p"+(MainApp.myTurn%4+1)+"Hand").setValue(p1Hand);
-            MJObj.setSeaCards(seaCards);        //myRef.child("seaCards").setValue(seaCards);
-
-
-
-            //只要手牌打出去就改Firebase 換下一位
-            MJObj.setWhosTurn((MainApp.myTurn+1)%4);
-            myRef.setValue(MJObj); //同步物件 上傳到firebase
-
-
+            //同步物件上傳到Firebase
+            updateMJObj(false,1);
             notifyItemRemoved(position);
         }
 
@@ -384,8 +626,8 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull p2_HansListAdapter.ViewHolder holder, int position) {
             ImageView iv = holder.iv;
-            holder.itemView.setTag(position);//将position保存在itemView的tag中，一边点击时获取
-            iv.setImageResource(imgURI(p2Hand.get(position)));
+            iv.setRotation(270);
+            iv.setImageResource(imgURI(60));
         }
 
         @Override
@@ -413,8 +655,8 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull p3_HansListAdapter.ViewHolder holder, int position) {
             ImageView iv = holder.iv;
-            holder.itemView.setTag(position);//将position保存在itemView的tag中，一边点击时获取
-            iv.setImageResource(imgURI(p3Hand.get(position)));
+            iv.setRotation(180);
+            iv.setImageResource(imgURI(60));
         }
 
         @Override
@@ -442,7 +684,6 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull p4_HansListAdapter.ViewHolder holder, int position) {
             ImageView iv = holder.iv;
-            holder.itemView.setTag(position);//将position保存在itemView的tag中，一边点击时获取
             iv.setRotation(90);
             iv.setImageResource(imgURI(60));
 
@@ -490,6 +731,192 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
+    public class p1Out_ListAdapter extends RecyclerView.Adapter<PlayingActivity.p1Out_ListAdapter.viewHolder>{
+        @NonNull
+        @Override
+        public PlayingActivity.p1Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            PlayingActivity.p1Out_ListAdapter.viewHolder vh=new PlayingActivity.p1Out_ListAdapter.viewHolder(view);
+            //註冊點擊
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PlayingActivity.p1Out_ListAdapter.viewHolder holder, int position) {
+            ImageView iv1 = holder.iv1;
+            ImageView iv2 = holder.iv2;
+            ImageView iv3 = holder.iv3;
+            ImageView iv4 = holder.iv4;
+            //要判斷是吃碰還是槓,吃碰用不到iv4
+
+            if(p1Out.size()!=1){
+                iv1.setImageResource(imgURI(p1Out.get(position*4+0)));
+                iv2.setImageResource(imgURI(p1Out.get(position*4+1)));
+                iv3.setImageResource(imgURI(p1Out.get(position*4+2)));
+                iv4.setImageResource(imgURI(p1Out.get(position*4+3)));
+            }
+        }
+        @Override
+        public int getItemCount() {
+            int x=p1Out.size()/4;//每4張牌成一個item
+            return x;        }
+
+        private class viewHolder extends RecyclerView.ViewHolder{
+            ImageView iv1,iv2,iv3,iv4;
+            public viewHolder(@NonNull View itemView) {
+                super(itemView);
+                iv1=itemView.findViewById(R.id.eat1);
+                iv2=itemView.findViewById(R.id.eat2);
+                iv3=itemView.findViewById(R.id.eat3);
+                iv4=itemView.findViewById(R.id.eat4);
+            }
+        }
+    }
+    public class p2Out_ListAdapter extends RecyclerView.Adapter<PlayingActivity.p2Out_ListAdapter.viewHolder>{
+        @NonNull
+        @Override
+        public PlayingActivity.p2Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            PlayingActivity.p2Out_ListAdapter.viewHolder vh=new PlayingActivity.p2Out_ListAdapter.viewHolder(view);
+            //註冊點擊
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PlayingActivity.p2Out_ListAdapter.viewHolder holder, int position) {
+            ImageView iv1 = holder.iv1;
+            ImageView iv2 = holder.iv2;
+            ImageView iv3 = holder.iv3;
+            ImageView iv4 = holder.iv4;
+            //要判斷是吃碰還是槓,吃碰用不到iv4
+
+            if(p1Out.size()!=1){
+                iv1.setImageResource(imgURI(p2Out.get(position*4+0)));
+                iv2.setImageResource(imgURI(p2Out.get(position*4+1)));
+                iv3.setImageResource(imgURI(p2Out.get(position*4+2)));
+                iv4.setImageResource(imgURI(p2Out.get(position*4+3)));
+            }
+        }
+        @Override
+        public int getItemCount() {
+            int x=p2Out.size()/4;//每4張牌成一個item
+            return x;        }
+
+        private class viewHolder extends RecyclerView.ViewHolder{
+            ImageView iv1,iv2,iv3,iv4;
+            public viewHolder(@NonNull View itemView) {
+                super(itemView);
+                iv1=itemView.findViewById(R.id.eat1);
+                iv2=itemView.findViewById(R.id.eat2);
+                iv3=itemView.findViewById(R.id.eat3);
+                iv4=itemView.findViewById(R.id.eat4);
+            }
+        }
+    }
+    public class p3Out_ListAdapter extends RecyclerView.Adapter<PlayingActivity.p3Out_ListAdapter.viewHolder>{
+        @NonNull
+        @Override
+        public PlayingActivity.p3Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            PlayingActivity.p3Out_ListAdapter.viewHolder vh=new PlayingActivity.p3Out_ListAdapter.viewHolder(view);
+            //註冊點擊
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PlayingActivity.p3Out_ListAdapter.viewHolder holder, int position) {
+            ImageView iv1 = holder.iv1;
+            ImageView iv2 = holder.iv2;
+            ImageView iv3 = holder.iv3;
+            ImageView iv4 = holder.iv4;
+            //要判斷是吃碰還是槓,吃碰用不到iv4
+
+            if(p1Out.size()!=1){
+                iv1.setImageResource(imgURI(p3Out.get(position*4+0)));
+                iv2.setImageResource(imgURI(p3Out.get(position*4+1)));
+                iv3.setImageResource(imgURI(p3Out.get(position*4+2)));
+                iv4.setImageResource(imgURI(p3Out.get(position*4+3)));
+            }
+        }
+        @Override
+        public int getItemCount() {
+            int x=p3Out.size()/4;//每4張牌成一個item
+            return x;        }
+
+        private class viewHolder extends RecyclerView.ViewHolder{
+            ImageView iv1,iv2,iv3,iv4;
+            public viewHolder(@NonNull View itemView) {
+                super(itemView);
+                iv1=itemView.findViewById(R.id.eat1);
+                iv2=itemView.findViewById(R.id.eat2);
+                iv3=itemView.findViewById(R.id.eat3);
+                iv4=itemView.findViewById(R.id.eat4);
+            }
+        }
+    }
+    public class p4Out_ListAdapter extends RecyclerView.Adapter<PlayingActivity.p4Out_ListAdapter.viewHolder>{
+        @NonNull
+        @Override
+        public PlayingActivity.p4Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            PlayingActivity.p4Out_ListAdapter.viewHolder vh=new PlayingActivity.p4Out_ListAdapter.viewHolder(view);
+            //註冊點擊
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PlayingActivity.p4Out_ListAdapter.viewHolder holder, int position) {
+            ImageView iv1 = holder.iv1;
+            ImageView iv2 = holder.iv2;
+            ImageView iv3 = holder.iv3;
+            ImageView iv4 = holder.iv4;
+            //要判斷是吃碰還是槓,吃碰用不到iv4
+
+            if(p1Out.size()!=1){
+                iv1.setImageResource(imgURI(p4Out.get(position*4+0)));
+                iv2.setImageResource(imgURI(p4Out.get(position*4+1)));
+                iv3.setImageResource(imgURI(p4Out.get(position*4+2)));
+                iv4.setImageResource(imgURI(p4Out.get(position*4+3)));
+            }
+        }
+        @Override
+        public int getItemCount() {
+            int x=p4Out.size()/4;//每4張牌成一個item
+            return x;        }
+
+        private class viewHolder extends RecyclerView.ViewHolder{
+            ImageView iv1,iv2,iv3,iv4;
+            public viewHolder(@NonNull View itemView) {
+                super(itemView);
+                iv1=itemView.findViewById(R.id.eat1);
+                iv2=itemView.findViewById(R.id.eat2);
+                iv3=itemView.findViewById(R.id.eat3);
+                iv4=itemView.findViewById(R.id.eat4);
+            }
+        }
+    }
+
+    public class MyItemDecoration extends RecyclerView.ItemDecoration{
+        @Override
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            if (parent.getChildAdapterPosition(view)!=0){
+                outRect.left=20;
+            }
+        }
+    }
+
+    private void updateMJObj(boolean isEPGW,int nextTurn){
+        MJObj.setMyHand(p1Hand);
+        MJObj.setMyOut(p1Out);
+        MJObj.setSeaCards(seaCards);
+        MJObj.setIsEPGW(isEPGW);
+        MJObj.setWhosTurn((MainApp.myTurn+nextTurn)%4);    //只要手牌打出去就改Firebase 換下一位
+        myRef.setValue(MJObj);
+    }
+
+
+
 
     private boolean canEat(int lastSeaCard){
         boolean result = false;

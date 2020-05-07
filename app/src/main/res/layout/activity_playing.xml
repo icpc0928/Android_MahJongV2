@@ -8,11 +8,18 @@
     tools:context=".PlayingActivity">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_p1Out"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_alignParentBottom="true"
+
+        />
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_p1HandCards"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="100dp"
+
         />
 
 
@@ -39,7 +46,14 @@
         android:layout_above="@id/rl_p1Area"
         android:layout_alignParentLeft="true"
         >
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_p4Out"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:textSize="20sp"
+            android:layout_marginBottom="30dp"
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p4HandCards"
             android:layout_width="match_parent"
@@ -75,12 +89,20 @@
             android:background="@drawable/mj60"
             android:visibility="invisible"
             />
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_p2Out"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="15dp"
+            android:textSize="20sp"
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p2HandCards"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="15dp"
             android:textSize="20sp"
             />
 
@@ -102,12 +124,21 @@
             android:background="@drawable/mj60"
             android:visibility="invisible"
             />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_p3HandCards"
-            android:layout_width="match_parent"
+            android:id="@+id/rv_p3Out"
+            android:layout_width="360dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="60dp"
+            android:layout_marginTop="15dp"
+            android:textSize="20sp"
+            />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_p3HandCards"
+            android:layout_width="360dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="15dp"
+            android:textSize="20sp"
             />
 
 

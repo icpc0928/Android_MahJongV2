@@ -44,18 +44,18 @@ public class framlayout extends Fragment{
             switch (v.getId()){
                 case R.id.eat:
                     //點了吃
-
+                    playingActivity.gotoEatList();
 //                    playingActivity.getMJObj().getP1Hand().remove(playingActivity.getMJObj().getP1Hand().size()-1);
 //                    Log.v("leo",playingActivity.getMJObj().getP1Hand().toString());
 
                     break;
                 case R.id.pong:
                     //點了碰
-                    //...
+                    playingActivity.Pongwhat();
                     break;
                 case R.id.gong:
                     //點了槓
-                    //...
+                    playingActivity.Gongwhat();
                     break;
 
                 case R.id.whoo:

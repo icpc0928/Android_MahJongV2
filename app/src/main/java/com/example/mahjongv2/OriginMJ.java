@@ -8,6 +8,7 @@ public class OriginMJ {
     private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower ;
     private ArrayList<Integer> MJCards ,seaCards, lastCards;
     private int whosTurn , needPon,needEat ,whoWin;
+    private boolean isEPGW;
 
     public OriginMJ(){
         MJCards = new ArrayList<>();
@@ -111,7 +112,12 @@ public class OriginMJ {
         for(int i = 0; i<64 ;i ++){
             lastCards.remove(0);    //發牌時一次性將剩餘牌數前面64張(16*4)刪除，所以 setAllHand 方法只能做一次
         }
-
+    }
+    public void setAllOut(){
+        p1Out.add(0);
+        p2Out.add(0);
+        p3Out.add(0);
+        p4Out.add(0);
     }
     public ArrayList<Integer> setSeaCards(){
         return this.seaCards;
@@ -127,6 +133,17 @@ public class OriginMJ {
             p3Hand = myHand;
         }else if(MainApp.myTurn==3){
             p4Hand = myHand;
+        }
+    }
+    public void setMyOut(ArrayList<Integer> myOut){
+        if (MainApp.myTurn==0){
+            p1Out = myOut;
+        }else if(MainApp.myTurn==1){
+            p2Out = myOut;
+        }else if(MainApp.myTurn==2){
+            p3Out = myOut;
+        }else if(MainApp.myTurn==3){
+            p4Out = myOut;
         }
     }
 
@@ -171,6 +188,13 @@ public class OriginMJ {
 
     public int getWhosTurn(){
         return whosTurn;
+    }
+
+    public void setIsEPGW(boolean x){
+        isEPGW=x;
+    }
+    public boolean getIsEPGW(){
+        return isEPGW;
     }
 
 
