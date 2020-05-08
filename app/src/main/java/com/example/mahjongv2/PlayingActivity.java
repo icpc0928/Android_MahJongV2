@@ -1080,10 +1080,7 @@ private Handler handler=new MyHandler();
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-//            每次收到數據
-            Bundle b = msg.getData();
-            int time = b.getInt("time");
-            count.setText("剩餘:"+time+"秒後我要抽牌");
+
             btn_mask.setVisibility(View.INVISIBLE);
         }
 
