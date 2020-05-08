@@ -395,7 +395,7 @@ public class PlayingActivity extends AppCompatActivity {
         p1Out_listAdapter.notifyDataSetChanged();
         temp_p1Out.clear();//清空暫存區
         //TODO 上傳MJObj 並且讓你能打牌
-        btn_mask.setVisibility(View.INVISIBLE);
+
         updateMJObj(true,0);
     }
     //顯示出碰了什麼
@@ -414,12 +414,9 @@ public class PlayingActivity extends AppCompatActivity {
         Log.v("leo",p1Out.toString());
         //更新畫面
         seaCards.remove(seaCards.size()-1);//移除海底最後一張
-//        int count=seaAdapter.getItemCount();
-//        seaAdapter.notifyItemChanged(count);
-//        p1Out_listAdapter.notifyDataSetChanged();
-//        p1_handadapter.notifyDataSetChanged();
+
         //TODO 上傳MJObj
-        btn_mask.setVisibility(View.INVISIBLE);
+
         updateMJObj(true,0);
 
 
@@ -438,12 +435,10 @@ public class PlayingActivity extends AppCompatActivity {
         }
         //更新畫面
         seaCards.remove(seaCards.size()-1);//移除海底最後一張
-        int count=seaAdapter.getItemCount();
-        seaAdapter.notifyItemChanged(count);
-        p1Out_listAdapter.notifyDataSetChanged();
+
 
         //TODO 上傳MJObj
-        btn_mask.setVisibility(View.INVISIBLE);
+
         updateMJObj(true,0);
 
 
@@ -1072,21 +1067,15 @@ private Handler handler=new MyHandler();
 
         @Override
         public void run() {
-            Bundle bundle=new Bundle();
-            for(int i=5;i>=0;i--){
-                Message msg=new Message();//注意在sendmessage後,Handler 會將 Message 加入 MessageQueue 中，造成下次要處理的message，已經不是原來的對象,
-                //因此每使用後,都要new一個出來,不然會出現 This message is already in use.的錯誤
-                try {
-                    bundle.putInt("time",i);
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);//每秒丟出一個bundle給handler,注意每次都要丟給沒用過的message物件
-                    //要提的是,似乎message物件有使用的上限?
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }}
+            try{
+                handler.sendEmptyMessage(0);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
     }
+
     private class MyHandler extends Handler {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -1095,7 +1084,9 @@ private Handler handler=new MyHandler();
             Bundle b = msg.getData();
             int time = b.getInt("time");
             count.setText("剩餘:"+time+"秒後我要抽牌");
+            btn_mask.setVisibility(View.INVISIBLE);
         }
+
     }
 
     public OriginMJ getMJObj(){
