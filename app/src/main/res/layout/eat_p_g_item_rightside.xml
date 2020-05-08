@@ -15,7 +15,9 @@
             android:layout_width="20dp"
             android:layout_height="15dp"
             android:layout_gravity="center"
-            android:background="#000"
+            android:rotation="270"
+
+
 
             />
     </LinearLayout>
@@ -28,7 +30,8 @@
             android:layout_width="20dp"
             android:layout_height="15dp"
             android:layout_gravity="top"
-            android:background="#000"
+            android:rotation="270"
+
             />
 
         <ImageView
@@ -36,14 +39,16 @@
             android:layout_width="20dp"
             android:layout_height="15dp"
             android:layout_gravity="top"
-            android:background="#000"
+            android:rotation="270"
+
             />
         <ImageView
             android:id="@+id/eat3"
             android:layout_width="20dp"
             android:layout_height="15dp"
             android:layout_gravity="top"
-            android:background="#000"
+            android:rotation="270"
+
             />
     </LinearLayout>
 

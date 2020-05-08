@@ -73,6 +73,7 @@ public class framlayout extends Fragment{
                             if(Collections.max(decision)==10){
 
                                 playingActivity.gotoEatList();
+
                             }
 
 

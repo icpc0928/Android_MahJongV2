@@ -10,13 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#000">
+
+        >
         <ImageView
             android:id="@+id/eat4"
             android:layout_width="40dp"
             android:layout_height="70dp"
             android:layout_gravity="center"
-android:background="#000"
+
 
             />
     </LinearLayout>
@@ -29,7 +30,7 @@ android:background="#000"
             android:layout_width="40dp"
             android:layout_height="70dp"
             android:layout_gravity="top"
-            android:background="#000"
+
             />
 
         <ImageView
@@ -37,14 +38,14 @@ android:background="#000"
             android:layout_width="44dp"
             android:layout_height="70dp"
             android:layout_gravity="top"
-            android:background="#000"
+
  />
         <ImageView
             android:id="@+id/eat3"
             android:layout_width="40dp"
             android:layout_height="70dp"
             android:layout_gravity="top"
-            android:background="#000"
+
             />
     </LinearLayout>
 

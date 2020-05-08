@@ -238,7 +238,7 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
-            btn_mask.setVisibility(View.INVISIBLE);//借放
+
 
 
             if(!MJObj.getIsEPGW() && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
@@ -355,6 +355,7 @@ public class PlayingActivity extends AppCompatActivity {
         eatList=new EatList();
         frgT=frgm.beginTransaction();
         frgT.add(R.id.framlayout,eatList).commit();
+
     }
     //顯示出吃了什麼
     public void Eatwhat(int position){//由EatList呼叫,在EatList時已經把可以吃的選項全部存在temp,現在要依照點了哪個item,把選的丟到p1Out
@@ -393,7 +394,8 @@ public class PlayingActivity extends AppCompatActivity {
         seaAdapter.notifyItemChanged(count);
         p1Out_listAdapter.notifyDataSetChanged();
         temp_p1Out.clear();//清空暫存區
-        //TODO 上傳MJObj
+        //TODO 上傳MJObj 並且讓你能打牌
+        btn_mask.setVisibility(View.INVISIBLE);
         updateMJObj(true,0);
     }
     //顯示出碰了什麼
@@ -417,6 +419,7 @@ public class PlayingActivity extends AppCompatActivity {
 //        p1Out_listAdapter.notifyDataSetChanged();
 //        p1_handadapter.notifyDataSetChanged();
         //TODO 上傳MJObj
+        btn_mask.setVisibility(View.INVISIBLE);
         updateMJObj(true,0);
 
 
@@ -440,6 +443,7 @@ public class PlayingActivity extends AppCompatActivity {
         p1Out_listAdapter.notifyDataSetChanged();
 
         //TODO 上傳MJObj
+        btn_mask.setVisibility(View.INVISIBLE);
         updateMJObj(true,0);
 
 
