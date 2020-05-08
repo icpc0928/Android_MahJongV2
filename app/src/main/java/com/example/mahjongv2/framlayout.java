@@ -142,9 +142,11 @@ public class framlayout extends Fragment{
                             MJObj=playingActivity.getMJObj();
                             decision= MJObj.getDecision();
                             if(Collections.max(decision)<=1){
-                                MJObj.setIsTimeStop(false);
+                                Log.v("leo","改條件惹");
+                                MJObj.setIsTimeStop(true);    //TODO 避免二次進入onDataChange p2會重新跑
                                 MJObj.setIsEPGW(false);
                                 myRef.setValue(MJObj);
+
                             }
                         }
                     },3000);

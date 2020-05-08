@@ -241,14 +241,14 @@ public class PlayingActivity extends AppCompatActivity {
 
 
 
-            if(!MJObj.getIsEPGW() && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
+            if(!MJObj.getIsEPGW() &&  MJObj.getIsTimeStop()  && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
                 if(allEPGW()){
                    MJObj.setIsEPGW(true);
                    myRef.setValue(MJObj);
                    return;
                 }
             }
-            //如果P2發現有人要EPGW 且 第一次執行到這          且  非打牌那位    才要判斷"我自己"要不要吃
+            //如果P2發現有人要EPGW 且 第一次執行到這(第二次為T直到有人打牌 且  非打牌那位    才要讓其他人判斷"我自己"要不要吃
             if(MJObj.getIsEPGW()  && !MJObj.getIsTimeStop() && (MJObj.getWhosTurn()+3)%4 !=MainApp.myTurn && MJObj.getSeaCards().size()>0 ){
                 EPGW();
                 return;
@@ -1064,6 +1064,8 @@ public class PlayingActivity extends AppCompatActivity {
      }
  }
 private Handler handler=new MyHandler();
+
+
     public class countdown implements Runnable{
 
         @Override
