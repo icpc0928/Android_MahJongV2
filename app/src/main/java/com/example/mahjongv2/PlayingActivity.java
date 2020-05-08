@@ -395,7 +395,7 @@ public class PlayingActivity extends AppCompatActivity {
         p1Out_listAdapter.notifyDataSetChanged();
         temp_p1Out.clear();//清空暫存區
         //TODO 上傳MJObj 並且讓你能打牌
-
+        new Thread(new countdown()).start();
         updateMJObj(true,0);
     }
     //顯示出碰了什麼
@@ -416,6 +416,7 @@ public class PlayingActivity extends AppCompatActivity {
         seaCards.remove(seaCards.size()-1);//移除海底最後一張
 
         //TODO 上傳MJObj
+        new Thread(new countdown()).start();
 
         updateMJObj(true,0);
 
@@ -438,7 +439,7 @@ public class PlayingActivity extends AppCompatActivity {
 
 
         //TODO 上傳MJObj
-
+        new Thread(new countdown()).start();
         updateMJObj(true,0);
 
 
