@@ -281,7 +281,7 @@ public class NewRoomActivity extends AppCompatActivity {
     //洗牌程序
     private int[] washCards(int[] cards){
         //洗牌 只洗前面144張 第145張是牌背
-        int playFlower = 0;  //測試用 如果要花---0  不花---8
+        int playFlower = 8;  //測試用 如果要花---0  不花---8
         for(int i =cards.length-2-playFlower;i>0;i--){
             int rand = (int)(Math.random()*(i));
             int temp ;

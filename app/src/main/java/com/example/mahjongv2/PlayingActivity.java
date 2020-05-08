@@ -266,12 +266,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
 
 
-
-
-
-
-
-
                 //假設我是1p,且是第一輪出牌
                 // 摸牌  if內寫MJObj.getWhosTurn()==MainApp.myTurn
 
