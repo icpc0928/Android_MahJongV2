@@ -146,7 +146,6 @@ public class framlayout extends Fragment{
                                 MJObj.setIsTimeStop(true);    //TODO 避免二次進入onDataChange p2會重新跑
                                 MJObj.setIsEPGW(false);
                                 myRef.setValue(MJObj);
-
                             }
                         }
                     },3000);
@@ -223,9 +222,22 @@ public class framlayout extends Fragment{
 
         @Override
         public void run() {
+            playingActivity.timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    MJObj=playingActivity.getMJObj();
+                    decision= MJObj.getDecision();
+                    if(Collections.max(decision)<=1){
+                        Log.v("leo","改條件惹");
+                        MJObj.setIsTimeStop(true);    //TODO 避免二次進入onDataChange p2會重新跑
+                        MJObj.setIsEPGW(false);
+                        myRef.setValue(MJObj);
+                    }
+                }
+            },3000);
+
             playingActivity.closeFragment();
-            //看看什麼也不幹要傳回什麼
-            //...
+
         }
     }
     private class CountDown implements Runnable{
