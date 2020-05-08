@@ -238,12 +238,14 @@ public class NewRoomActivity extends AppCompatActivity {
                             41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44,45,45,45,45,46,46,46,46,47,47,47,47,                            //東南西北中發白
                             51,52,53,54,55,56,57,58,60};                                                                                    //花 + 牌背
 
-            washCards(cards);    //洗牌
+            boolean removeFlower = true;       //這裡設定要不要移除花
+            washCards(cards,removeFlower);    //洗牌 true為不玩花
 
             MJObj = new OriginMJ();
             MJObj.addMJCards(cards);
             MJObj.addLastCards(MJObj.getMJCards());
-            MJObj.setAllHand();     //初始化p1~p4的手牌
+            MJObj.setAllHand();     //初始化p1~p4的手牌  且刪除lastCards所發出去的牌
+            MJObj.removeFlower(removeFlower);
             MJObj.setAllOut();      //初始化p1~p4吃碰牌
             MJObj.setWhosTurn(0);  //一開始由0號摸牌
             MJObj.setIsEPGW(false);
@@ -279,9 +281,13 @@ public class NewRoomActivity extends AppCompatActivity {
     }
 
     //洗牌程序
-    private int[] washCards(int[] cards){
+    private int[] washCards(int[] cards,boolean removeFlower){
         //洗牌 只洗前面144張 第145張是牌背
-        int playFlower = 8;  //測試用 如果要花---0  不花---8
+
+        int playFlower =0;
+        if(removeFlower){
+            playFlower=8;
+        }
         for(int i =cards.length-2-playFlower;i>0;i--){
             int rand = (int)(Math.random()*(i));
             int temp ;

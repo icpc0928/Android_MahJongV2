@@ -39,6 +39,9 @@
             android:onClick="startGame"
             />
 
+
+
+
         <Button
             android:id="@+id/btn_gotoRooms"
             android:text="返回"

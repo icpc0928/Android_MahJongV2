@@ -118,6 +118,13 @@ public class OriginMJ {
             lastCards.remove(0);    //發牌時一次性將剩餘牌數前面64張(16*4)刪除，所以 setAllHand 方法只能做一次
         }
     }
+    public void removeFlower(boolean x){
+        if(x){
+            for(int i=0;i<8;i++){
+                lastCards.remove(lastCards.size()-1);
+            }
+        }
+    }
     public void setAllOut(){
         p1Out.add(0);
         p2Out.add(0);
