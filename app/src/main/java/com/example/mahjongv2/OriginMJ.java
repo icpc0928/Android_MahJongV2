@@ -3,12 +3,15 @@ package com.example.mahjongv2;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class OriginMJ {
     private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower ;
-    private ArrayList<Integer> MJCards ,seaCards, lastCards;
+    private ArrayList<Integer> MJCards ,seaCards, lastCards,decision;
     private int whosTurn , needPon,needEat ,whoWin;
-    private boolean isEPGW;
+    private boolean isEPGW ,isTimeStop;
+
 
     public OriginMJ(){
         MJCards = new ArrayList<>();
@@ -31,6 +34,7 @@ public class OriginMJ {
         p4Flower = new ArrayList<>();
 
         seaCards = new ArrayList<>();
+        decision = new ArrayList<>();
 
         whosTurn = -1;
 
@@ -94,6 +98,7 @@ public class OriginMJ {
             return p4Flower;
         }
     }
+
 
     //此方法為房主於newRoomAct 點開始遊戲後自動發牌 所以只執行一次
     public void setAllHand(){
@@ -193,10 +198,34 @@ public class OriginMJ {
     public void setIsEPGW(boolean x){
         isEPGW=x;
     }
+
+
     public boolean getIsEPGW(){
         return isEPGW;
     }
 
+    public void setIsTimeStop(boolean timeStop) {
+        isTimeStop = timeStop;
+    }
+    public boolean getIsTimeStop(){
+        return isTimeStop;
+    }
 
+    public void setDecision(){
+        this.decision.add(0);
+        this.decision.add(0);
+        this.decision.add(0);
+        this.decision.add(0);
+    }
+    public void originDecision(){
+        this.decision.set(0,0);
+        this.decision.set(1,0);
+        this.decision.set(2,0);
+        this.decision.set(3,0);
+    }
 
+    public ArrayList<Integer> getDecision(){
+
+        return decision;
+    }
 }

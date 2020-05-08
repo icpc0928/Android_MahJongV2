@@ -71,7 +71,8 @@ public class EatList extends Fragment {
         //取得MJObj
         MJObj=playingActivity.MJObj;
 
-        EatWhat(MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1));//把符合條件的牌塞到cardforEat裡,顯示出來給使用者選
+        EatWhat(MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1));
+        Log.v("leo","cards:"+MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1));//把符合條件的牌塞到cardforEat裡,顯示出來給使用者選
         EatPGListAdapter.notifyDataSetChanged();
         for(int i=0;i<cardsDataforEat.size();i++){
             int y=cardsDataforEat.get(i);//分別取出
@@ -107,32 +108,34 @@ public class EatList extends Fragment {
         //1.尾張需在11~19.21~29.31~39之間
         if(lastSeaCard <40){
             //2.三種吃牌條件  -2-1 , -1+1, +1+2 (需先將尾張取個位數 ==1 判斷+1.+2  ==9 判斷-1-2  其餘判斷三種)
-            if(lastSeaCard%10==1 & MJObj.getP1Hand().contains(lastSeaCard+1) & MJObj.getP1Hand().contains(lastSeaCard+2)){  //判斷+1.+2
+            if(lastSeaCard%10==1 & MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard+1) & MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard+2)){  //判斷+1.+2
                 cardsDataforEat.add(lastSeaCard+1);
                 cardsDataforEat.add(lastSeaCard);
                 cardsDataforEat.add(lastSeaCard+2);
-            }else if(lastSeaCard%10==9 & MJObj.getP1Hand().contains(lastSeaCard-1) & MJObj.getP1Hand().contains(lastSeaCard-2)){  //判斷-1.-2
+            }else if(lastSeaCard%10==9 &MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard-1) & MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard-2)){  //判斷-1.-2
                 cardsDataforEat.add(lastSeaCard-1);
                 cardsDataforEat.add(lastSeaCard);
                 cardsDataforEat.add(lastSeaCard-2);
             }else {
-                if ((MJObj.getP1Hand().contains(lastSeaCard-2)&MJObj.getP1Hand().contains(lastSeaCard-1))){
+                if ((MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard-2)&MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard-1))){
                     cardsDataforEat.add(lastSeaCard-1);
                     cardsDataforEat.add(lastSeaCard);
                     cardsDataforEat.add(lastSeaCard-2);
                 }
-                if (MJObj.getP1Hand().contains(lastSeaCard+1)&MJObj.getP1Hand().contains(lastSeaCard-1)){
+                if (MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard+1)&MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard-1)){
                     cardsDataforEat.add(lastSeaCard-1);
                     cardsDataforEat.add(lastSeaCard);
                     cardsDataforEat.add(lastSeaCard+1);
                 }
-                if (MJObj.getP1Hand().contains(lastSeaCard+1)&MJObj.getP1Hand().contains(lastSeaCard+2)){
+                if (MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard+1)&MJObj.findMyHand(MainApp.myTurn).contains(lastSeaCard+2)){
                     cardsDataforEat.add(lastSeaCard+1);
                     cardsDataforEat.add(lastSeaCard);
                     cardsDataforEat.add(lastSeaCard+2);
                 }
 
             }
+
+
         }
     }
 
@@ -143,6 +146,7 @@ public class EatList extends Fragment {
     private class MytimerTask extends TimerTask {
         @Override
         public void run() {
+            playingActivity.Eatwhat(0);
             playingActivity.closeEatList();
         }
     }
@@ -196,23 +200,21 @@ public class EatList extends Fragment {
             ImageView iv1 = holder.iv1;
             ImageView iv2 = holder.iv2;
             ImageView iv3 = holder.iv3;
-            if (position==0){//有三個,之後改成如果只有一個的話,不用顯示直接吃
-                iv1.setImageResource(playingActivity.imgURI(cardsDataforEat.get(0)));
-                iv2.setImageResource(playingActivity.imgURI(cardsDataforEat.get(1)));
-                iv3.setImageResource(playingActivity.imgURI(cardsDataforEat.get(2)));
-            }else if (position==1){//有六個
-                iv1.setImageResource(playingActivity.imgURI(cardsDataforEat.get(3)));
-                iv2.setImageResource(playingActivity.imgURI(cardsDataforEat.get(4)));
-                iv3.setImageResource(playingActivity.imgURI(cardsDataforEat.get(5)));
-            }else if (position==2){//有九個
-                iv1.setImageResource(playingActivity.imgURI(cardsDataforEat.get(6)));
-                iv2.setImageResource(playingActivity.imgURI(cardsDataforEat.get(7)));
-                iv3.setImageResource(playingActivity.imgURI(cardsDataforEat.get(8)));
+            //有三個,之後改成如果只有一個的話,不用顯示直接吃
+            Log.v("leo","hello:"+position+"有沒有跑position");
+            if(position !=cardsDataforEat.size()/3){
+                iv1.setImageResource(playingActivity.imgURI(cardsDataforEat.get(position*3+0)));
+                iv2.setImageResource(playingActivity.imgURI(cardsDataforEat.get(position*3+1)));
+                iv3.setImageResource(playingActivity.imgURI(cardsDataforEat.get(position*3+2)));
             }
+
+
         }
         @Override
         public int getItemCount() {
-            int x=cardsDataforEat.size()/3;
+            int x=cardsDataforEat.size()/3 ;
+
+
             return x;        }
 
         private class viewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

@@ -22,7 +22,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/EatPG_List"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:background="#00ff00"
+            />
 
     </LinearLayout>
 

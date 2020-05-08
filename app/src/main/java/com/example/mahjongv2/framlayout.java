@@ -16,8 +16,12 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,10 +34,20 @@ import java.util.zip.Inflater;
 public class framlayout extends Fragment{
     private TextView count_text;
     private Timer timer;
+    private TimerTask timerTask;
     private View view;
     private PlayingActivity playingActivity;
     private Button eat,pong,gong,cancel,whoo;
     private MyHandler handler;
+
+    //Firebase
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
+    private ArrayList<Integer> decision;
+    private OriginMJ MJObj;
+
+
+
 
 
 
@@ -41,28 +55,98 @@ public class framlayout extends Fragment{
     private View.OnClickListener clickListener=new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            database = FirebaseDatabase.getInstance();
+            myRef=database.getReference(MainApp.RoomId+"gaming");
+            decision = new ArrayList<>();
+            MJObj = new OriginMJ();
             switch (v.getId()){
                 case R.id.eat:
                     //點了吃
-                    playingActivity.gotoEatList();
-//                    playingActivity.getMJObj().getP1Hand().remove(playingActivity.getMJObj().getP1Hand().size()-1);
-//                    Log.v("leo",playingActivity.getMJObj().getP1Hand().toString());
+                    //找firebase我的權重是否最大，最大才做 ，做完 權重歸零
+                    //更改權重
+                    playingActivity.changeMyWeight(MainApp.myTurn,10);
+                    playingActivity.timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MJObj=playingActivity.getMJObj();
+                            decision= MJObj.getDecision();    //0.0.0.0
+                            if(Collections.max(decision)==10){
 
+                                playingActivity.gotoEatList();
+                            }
+
+
+                        }
+                    },3000);
                     break;
                 case R.id.pong:
                     //點了碰
-                    playingActivity.Pongwhat();
+                    playingActivity.changeMyWeight(MainApp.myTurn,100);
+                    playingActivity.timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MJObj=playingActivity.getMJObj();
+                            decision= MJObj.getDecision();    //0.0.0.0
+                            if(Collections.max(decision)==100){
+
+                                playingActivity.Pongwhat();
+                            }
+                        }
+                    },2000);
                     break;
                 case R.id.gong:
                     //點了槓
-                    playingActivity.Gongwhat();
+                    playingActivity.changeMyWeight(MainApp.myTurn,200);
+                    //找firebase我的權重是否最大，最大才做
+                    playingActivity.timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MJObj=playingActivity.getMJObj();
+                            decision= MJObj.getDecision();    //0.0.0.0
+                            if(Collections.max(decision)==200){
+                                playingActivity.Gongwhat();
+                            }
+                        }
+                    },2000);
                     break;
-
                 case R.id.whoo:
                     //點了胡
+                    playingActivity.changeMyWeight(MainApp.myTurn,1000);
+                    //找firebase我的權重是否最大，最大才做
+                    playingActivity.timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MJObj=playingActivity.getMJObj();
+                            decision= MJObj.getDecision();    //0.0.0.0
+                            for(int i =0;i<4;i++){
+                               if(decision.get((MJObj.getWhosTurn()+3+i)%4) ==1000){
+                                   if(MainApp.myTurn==(MJObj.getWhosTurn()+3+i)%4){
+                                       //胡牌
+                                       Log.v("leo","恭喜你贏惹");
+                                   }
+                                   return;
+                               }
+                            }
+                        }
+                    },2000);
                     //...
                     break;
                 default:
+                    //更改權重
+                    playingActivity.changeMyWeight(MainApp.myTurn,1);
+                    //delay後如果大家都不吃碰 將時間開放 並上傳Firebase
+                    playingActivity.timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MJObj=playingActivity.getMJObj();
+                            decision= MJObj.getDecision();
+                            if(Collections.max(decision)<=1){
+                                MJObj.setIsTimeStop(false);
+                                MJObj.setIsEPGW(false);
+                                myRef.setValue(MJObj);
+                            }
+                        }
+                    },3000);
                     break;
             }
             playingActivity.closeFragment();

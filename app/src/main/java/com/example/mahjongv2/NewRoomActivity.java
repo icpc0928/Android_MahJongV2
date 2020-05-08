@@ -247,6 +247,9 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj.setAllOut();      //初始化p1~p4吃碰牌
             MJObj.setWhosTurn(0);  //一開始由0號摸牌
             MJObj.setIsEPGW(false);
+            MJObj.setIsTimeStop(false);
+            MJObj.setDecision();
+
 
 
             gameRef = database.getReference(lastId+"gaming");

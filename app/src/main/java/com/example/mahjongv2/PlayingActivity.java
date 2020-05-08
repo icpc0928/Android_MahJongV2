@@ -13,12 +13,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,6 +31,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class PlayingActivity extends AppCompatActivity {
     private LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager,p1Out_linearLayoutManager,p2Out_linearLayoutManager,p3Out_linearLayoutManager,p4Out_linearLayoutManager;
@@ -36,10 +41,12 @@ public class PlayingActivity extends AppCompatActivity {
     private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea,rv_p1Out,rv_p2Out,rv_p3Out,rv_p4Out;
     private Button btn_mask;
     private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
+    public Timer timer=new Timer();
+    private TimerTask timerTask;
 
 
     public ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards,p1Out,temp_p1Out,p2Out,p3Out,p4Out;
-
+    private TextView count;
 
     private p1_HansListAdapter p1_handadapter;
     private p2_HansListAdapter p2_handadapter;
@@ -56,8 +63,7 @@ public class PlayingActivity extends AppCompatActivity {
     private FragmentTransaction frgT;
     private framlayout  framlayout;
     private EatList eatList;
-
-
+    private int state=0;
 
     //Firebase
     private FirebaseDatabase database;
@@ -83,12 +89,12 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p2Out=findViewById(R.id.rv_p2Out);
         rv_p3Out=findViewById(R.id.rv_p3Out);
         rv_p4Out=findViewById(R.id.rv_p4Out);
+        count=findViewById(R.id.count);
 
 
 
 
-
-        //測試用firebase
+        //firebase
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(MainApp.RoomId+"gaming");
         Log.v("leo","D1");
@@ -209,6 +215,8 @@ public class PlayingActivity extends AppCompatActivity {
 
 
 
+
+
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
             p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
@@ -229,55 +237,71 @@ public class PlayingActivity extends AppCompatActivity {
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            MJObj = dataSnapshot.getValue(OriginMJ.class);  //下載firebase物件
+            MJObj = dataSnapshot.getValue(OriginMJ.class);
+            btn_mask.setVisibility(View.INVISIBLE);//借放
 
 
-            //true 改成 MJObj內的boolean EPGW
-            //用物件判斷有"誰"要吃碰槓胡 (其中條件是 下家能吃,三家能碰,後兩家能槓,三家能胡)  (如果只有一家,優先權讓給他(例如 對家要碰,下家沒有要吃,下家就要等待)
-            //重點在於等待這件事情!!!!
-            if(MJObj.getSeaCards().size()>0 &&  !MJObj.getIsEPGW()) {
-                int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
-                //判斷MJObj.p1Hand有沒有能吃碰槓胡的條件
-                //把.吃.碰.槓.胡.叫出來
-                boolean bEat,bPong,bGong,bWhoo;
-                bEat= canEat(lastSeaCard);
-                bPong=canPong(lastSeaCard);
-                bGong=canGong(lastSeaCard);
-                bWhoo=canWhoo(lastSeaCard);
-                if ( bEat||bPong||bGong||bWhoo ) {
-                    framlayout = framlayout.EatPongGongWhoo(bEat, bPong, bGong, bWhoo);
-                    frgT=frgm.beginTransaction();
-                    frgT.add(R.id.framlayout, framlayout).commit();
+            if(!MJObj.getIsEPGW() && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
+                if(allEPGW()){
+                   MJObj.setIsEPGW(true);
+                   myRef.setValue(MJObj);
+                   return;
                 }
             }
+            //如果P2發現有人要EPGW 且 第一次執行到這          且  非打牌那位    才要判斷"我自己"要不要吃
+            if(MJObj.getIsEPGW()  && !MJObj.getIsTimeStop() && (MJObj.getWhosTurn()+3)%4 !=MainApp.myTurn && MJObj.getSeaCards().size()>0 ){
+                EPGW();
+                return;
+            }
 
-            // if條件內放這個 MJObj.getWhosTurn()==MainApp.myTurn
-            // 另外要增加條件如果有人要吃碰要等待!!!!! ----或許可以寫在上段
-            if(true){
+            //如果 接下來該我摸牌                   且  沒人EPGW           且  沒人EPGW   才能摸牌    //這裡基本上只跟P2(下家)有關
+            if(MJObj.getWhosTurn()==MainApp.myTurn && !MJObj.getIsEPGW() && !MJObj.getIsTimeStop()){
+
                 btn_mask.setVisibility(View.INVISIBLE);
-                iv_p2GetCard.setVisibility(View.INVISIBLE);
-                iv_p3GetCard.setVisibility(View.INVISIBLE);
-                iv_p4GetCard.setVisibility(View.INVISIBLE);
                 //摸牌
                 p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
                 MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
                 MJObj.setMyHand(p1Hand);
-            }else{
-                if(MJObj.getWhosTurn()==(MainApp.myTurn+1)%4){
-                    iv_p2GetCard.setVisibility(View.VISIBLE);
-                    iv_p3GetCard.setVisibility(View.INVISIBLE);
-                    iv_p4GetCard.setVisibility(View.INVISIBLE);
-                }else if(MJObj.getWhosTurn()==(MainApp.myTurn+2)%4){
-                    iv_p2GetCard.setVisibility(View.INVISIBLE);
-                    iv_p3GetCard.setVisibility(View.VISIBLE);
-                    iv_p4GetCard.setVisibility(View.INVISIBLE);
-                }else if(MJObj.getWhosTurn()==(MainApp.myTurn+3)%4){
-                    iv_p2GetCard.setVisibility(View.INVISIBLE);
-                    iv_p3GetCard.setVisibility(View.INVISIBLE);
-                    iv_p4GetCard.setVisibility(View.VISIBLE);
-                }
-                btn_mask.setVisibility(View.VISIBLE);
             }
+
+
+
+
+
+
+
+
+                //假設我是1p,且是第一輪出牌
+                // 摸牌  if內寫MJObj.getWhosTurn()==MainApp.myTurn
+
+//                if(false ){
+//
+//                    btn_mask.setVisibility(View.INVISIBLE);
+//                    iv_p2GetCard.setVisibility(View.INVISIBLE);
+//                    iv_p3GetCard.setVisibility(View.INVISIBLE);
+//                    iv_p4GetCard.setVisibility(View.INVISIBLE);
+//                    //摸牌
+//                    p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
+//                    MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
+//                    MJObj.setMyHand(p1Hand);
+//                    //還沒上船firebase
+//                }else{//假設我是2p,3p,4p,執行這裡
+//                    if(MJObj.getWhosTurn()==(MainApp.myTurn+1)%4){
+//                        iv_p2GetCard.setVisibility(View.VISIBLE);
+//                        iv_p3GetCard.setVisibility(View.INVISIBLE);
+//                        iv_p4GetCard.setVisibility(View.INVISIBLE);
+//                    }else if(MJObj.getWhosTurn()==(MainApp.myTurn+2)%4){
+//                        iv_p2GetCard.setVisibility(View.INVISIBLE);
+//                        iv_p3GetCard.setVisibility(View.VISIBLE);
+//                        iv_p4GetCard.setVisibility(View.INVISIBLE);
+//                    }else if(MJObj.getWhosTurn()==(MainApp.myTurn+3)%4){
+//                        iv_p2GetCard.setVisibility(View.INVISIBLE);
+//                        iv_p3GetCard.setVisibility(View.INVISIBLE);
+//                        iv_p4GetCard.setVisibility(View.VISIBLE);
+//                    }
+//                    btn_mask.setVisibility(View.VISIBLE);
+//                }
+
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);     //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
             p3Hand= MJObj.findMyHand((MainApp.myTurn+2)%4);
@@ -287,7 +311,6 @@ public class PlayingActivity extends AppCompatActivity {
             p3Out = MJObj.findMyOut((MainApp.myTurn+2)%4);
             p4Out = MJObj.findMyOut((MainApp.myTurn+3)%4);
 
-
             p1_handadapter.notifyDataSetChanged();
             p2_handadapter.notifyDataSetChanged();
             p3_handadapter.notifyDataSetChanged();
@@ -296,6 +319,8 @@ public class PlayingActivity extends AppCompatActivity {
             p2Out_listAdapter.notifyDataSetChanged();
             p3Out_listAdapter.notifyDataSetChanged();
             p4Out_listAdapter.notifyDataSetChanged();
+            seaAdapter.notifyDataSetChanged();
+
 
             seaCards=MJObj.getSeaCards();
         }
@@ -319,15 +344,17 @@ public class PlayingActivity extends AppCompatActivity {
         frgT.remove(framlayout).commit();
     }
     public void closeEatList(){
+
         frgT=frgm.beginTransaction();
         frgT.remove(eatList).commit();
     }
 
     //點選到eatlist fragment
     public void gotoEatList(){
+
         eatList=new EatList();
         frgT=frgm.beginTransaction();
-        frgT.replace(R.id.framlayout,eatList).commit();
+        frgT.add(R.id.framlayout,eatList).commit();
     }
     //顯示出吃了什麼
     public void Eatwhat(int position){//由EatList呼叫,在EatList時已經把可以吃的選項全部存在temp,現在要依照點了哪個item,把選的丟到p1Out
@@ -382,14 +409,17 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
         p1Out.add(0);//吃碰的第四張為0
+        Log.v("leo",p1Out.toString());
         //更新畫面
         seaCards.remove(seaCards.size()-1);//移除海底最後一張
-        int count=seaAdapter.getItemCount();
-        seaAdapter.notifyItemChanged(count);
-        p1Out_listAdapter.notifyDataSetChanged();
-        p1_handadapter.notifyDataSetChanged();
+//        int count=seaAdapter.getItemCount();
+//        seaAdapter.notifyItemChanged(count);
+//        p1Out_listAdapter.notifyDataSetChanged();
+//        p1_handadapter.notifyDataSetChanged();
         //TODO 上傳MJObj
         updateMJObj(true,0);
+
+
     }
     public void Gongwhat(){
         int lastSeaCard=MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
@@ -596,14 +626,32 @@ public class PlayingActivity extends AppCompatActivity {
         //打牌
         @Override
         public void onItemSwipe( int position) {
+            Log.v("leo","打牌的Position"+position);
             seaCards.add(p1Hand.get(position));
-            seaAdapter.notifyItemChanged(position);
+
+
+//            seaAdapter.notifyItemChanged(position);
+            seaAdapter.notifyItemChanged(seaCards.size()-1);
             p1Hand.remove(position);
             //改為物件內容
             Collections.sort(p1Hand,Collections.<Integer>reverseOrder());
+
+
+            //目前可打牌的方式有： 摸牌，吃牌
+            //TODO 未來檢察碰牌來的跟 槓牌完摸牌來的
+            MJObj.setIsEPGW(false);
+            MJObj.setIsTimeStop(false);
+            MJObj.originDecision();
+
             //同步物件上傳到Firebase
             updateMJObj(false,1);
             notifyItemRemoved(position);
+
+
+            //結束 要記得將Button遮罩開啟
+            btn_mask.setVisibility(View.VISIBLE);
+
+
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder{
@@ -776,7 +824,7 @@ public class PlayingActivity extends AppCompatActivity {
         @NonNull
         @Override
         public PlayingActivity.p2Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item_rightside, parent, false);
             PlayingActivity.p2Out_ListAdapter.viewHolder vh=new PlayingActivity.p2Out_ListAdapter.viewHolder(view);
             //註冊點擊
             return vh;
@@ -790,7 +838,7 @@ public class PlayingActivity extends AppCompatActivity {
             ImageView iv4 = holder.iv4;
             //要判斷是吃碰還是槓,吃碰用不到iv4
 
-            if(p1Out.size()!=1){
+            if(p2Out.size()!=1){
                 iv1.setImageResource(imgURI(p2Out.get(position*4+0)));
                 iv2.setImageResource(imgURI(p2Out.get(position*4+1)));
                 iv3.setImageResource(imgURI(p2Out.get(position*4+2)));
@@ -817,7 +865,7 @@ public class PlayingActivity extends AppCompatActivity {
         @NonNull
         @Override
         public PlayingActivity.p3Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item_topside, parent, false);
             PlayingActivity.p3Out_ListAdapter.viewHolder vh=new PlayingActivity.p3Out_ListAdapter.viewHolder(view);
             //註冊點擊
             return vh;
@@ -831,7 +879,7 @@ public class PlayingActivity extends AppCompatActivity {
             ImageView iv4 = holder.iv4;
             //要判斷是吃碰還是槓,吃碰用不到iv4
 
-            if(p1Out.size()!=1){
+            if(p3Out.size()!=1){
                 iv1.setImageResource(imgURI(p3Out.get(position*4+0)));
                 iv2.setImageResource(imgURI(p3Out.get(position*4+1)));
                 iv3.setImageResource(imgURI(p3Out.get(position*4+2)));
@@ -858,7 +906,7 @@ public class PlayingActivity extends AppCompatActivity {
         @NonNull
         @Override
         public PlayingActivity.p4Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item_leftside, parent, false);
             PlayingActivity.p4Out_ListAdapter.viewHolder vh=new PlayingActivity.p4Out_ListAdapter.viewHolder(view);
             //註冊點擊
             return vh;
@@ -872,7 +920,7 @@ public class PlayingActivity extends AppCompatActivity {
             ImageView iv4 = holder.iv4;
             //要判斷是吃碰還是槓,吃碰用不到iv4
 
-            if(p1Out.size()!=1){
+            if(p4Out.size()!=1){
                 iv1.setImageResource(imgURI(p4Out.get(position*4+0)));
                 iv2.setImageResource(imgURI(p4Out.get(position*4+1)));
                 iv3.setImageResource(imgURI(p4Out.get(position*4+2)));
@@ -915,30 +963,34 @@ public class PlayingActivity extends AppCompatActivity {
         myRef.setValue(MJObj);
     }
 
+    public void changeMyWeight(int player,int weight){
+        //去更改自己的權重,什麼都不做,吃碰槓胡,分別是0123
+        MJObj.getDecision().set(player,weight);
+        myRef.setValue(MJObj);
+    }
 
 
-
-    private boolean canEat(int lastSeaCard){
+    private boolean canEat(int lastSeaCard,ArrayList<Integer> whosHand){
         boolean result = false;
         //1.尾張需在11~19.21~29.31~39之間
         if(lastSeaCard <40){
             //2.三種吃牌條件  -2-1 , -1+1, +1+2 (需先將尾張取個位數 ==1 判斷+1.+2  ==9 判斷-1-2  其餘判斷三種)
-            if(lastSeaCard%10==1 && MJObj.getP1Hand().contains(lastSeaCard+1) && MJObj.getP1Hand().contains(lastSeaCard+2)){  //判斷+1.+2
+            if(lastSeaCard%10==1 && whosHand.contains(lastSeaCard+1) && whosHand.contains(lastSeaCard+2)){  //判斷+1.+2
                 result= true;
-            }else if(lastSeaCard%10==9 && MJObj.getP1Hand().contains(lastSeaCard-1) && MJObj.getP1Hand().contains(lastSeaCard-2)){  //判斷-1.-2
+            }else if(lastSeaCard%10==9 && whosHand.contains(lastSeaCard-1) && whosHand.contains(lastSeaCard-2)){  //判斷-1.-2
                 result= true;
-            }else if((MJObj.getP1Hand().contains(lastSeaCard-2)&&MJObj.getP1Hand().contains(lastSeaCard-1)) ||(MJObj.getP1Hand().contains(lastSeaCard+1)&&MJObj.getP1Hand().contains(lastSeaCard-1))
-                    ||(MJObj.getP1Hand().contains(lastSeaCard+1)&&MJObj.getP1Hand().contains(lastSeaCard+2))){
+            }else if((whosHand.contains(lastSeaCard-2)&&whosHand.contains(lastSeaCard-1)) ||(whosHand.contains(lastSeaCard+1)&&whosHand.contains(lastSeaCard-1))
+                    ||(whosHand.contains(lastSeaCard+1)&&whosHand.contains(lastSeaCard+2))){
                 result= true;
             }
         }
         return result;
     }
-    private boolean canPong(int lastSeaCard){   //僅需判斷手牌中是否有2個以上的lastSeaCard
+    private boolean canPong(int lastSeaCard ,ArrayList<Integer> whosHand){   //僅需判斷手牌中是否有2個以上的lastSeaCard
         boolean result = false;
         int count=0;
-        for(int i=0;i<MJObj.getP1Hand().size();i++){
-            if(lastSeaCard==MJObj.getP1Hand().get(i)){
+        for(int i=0;i<whosHand.size();i++){
+            if(lastSeaCard==whosHand.get(i)){
                 count++;
                 if(count ==2){
                     result=true;
@@ -948,11 +1000,11 @@ public class PlayingActivity extends AppCompatActivity {
         }
         return result;
     }
-    private boolean canGong(int lastSeaCard){  //僅需判斷手牌中是否有3個lastSeaCard
+    private boolean canGong(int lastSeaCard,ArrayList<Integer> whosHand){  //僅需判斷手牌中是否有3個lastSeaCard
         boolean result = false;
         int count=0;
-        for(int i=0;i<MJObj.getP1Hand().size();i++){
-            if(lastSeaCard==MJObj.getP1Hand().get(i)){
+        for(int i=0;i<whosHand.size();i++){
+            if(lastSeaCard==whosHand.get(i)){
                 count++;
                 if(count == 3){
                     result=true;
@@ -962,15 +1014,84 @@ public class PlayingActivity extends AppCompatActivity {
         }
         return result;
     }
-    private boolean canWhoo(int lastSeaCard){
+    private boolean canWhoo(int lastSeaCard,ArrayList<Integer> whosHand){
         boolean result ;
         WhooAlgorithm whooAlgorithm=new WhooAlgorithm();
         ArrayList<Integer> temp ;
-        temp=(ArrayList<Integer>)MJObj.getP1Hand().clone();
+        temp=(ArrayList<Integer>)whosHand.clone();
         temp.add(lastSeaCard);
         Collections.sort(temp);
         result = whooAlgorithm.canWhoo(temp);
         return result;
+    }
+
+ private void EPGW(){   //現在會進來判斷的只有打牌之外的人
+     int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+     //判斷MJObj.p1Hand有沒有能吃碰槓胡的條件
+     //把.吃.碰.槓.胡.叫出來
+     boolean bEat,bPong,bGong,bWhoo;
+     bEat= MJObj.getWhosTurn()==MainApp.myTurn && canEat(lastSeaCard,MJObj.findMyHand(MainApp.myTurn));
+
+     bPong=canPong(lastSeaCard,MJObj.findMyHand(MainApp.myTurn));
+     bGong= MJObj.getWhosTurn()!=MainApp.myTurn && canGong(lastSeaCard,MJObj.findMyHand(MainApp.myTurn));
+     bWhoo=canWhoo(lastSeaCard,MJObj.findMyHand(MainApp.myTurn));
+     if ( bEat||bPong||bGong||bWhoo ) {
+         MJObj.setIsTimeStop(true);
+         myRef.setValue(MJObj);
+
+         framlayout = framlayout.EatPongGongWhoo(bEat, bPong, bGong, bWhoo);
+         frgT=frgm.beginTransaction();
+         frgT.add(R.id.framlayout, framlayout).commit();
+     }
+ }
+ private boolean allEPGW(){
+        boolean epgw=false;
+
+        int last = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+        if(canEat(last,MJObj.findMyHand(MainApp.myTurn)) || canPong(last,MJObj.findMyHand(MainApp.myTurn)) || canWhoo(last,MJObj.findMyHand(MainApp.myTurn))
+            || canPong(last,MJObj.findMyHand((MainApp.myTurn+1)%4)) || canGong(last,MJObj.findMyHand((MainApp.myTurn+1)%4)) || canWhoo(last,MJObj.findMyHand((MainApp.myTurn+1)%4))
+            || canPong(last,MJObj.findMyHand((MainApp.myTurn+2)%4)) || canGong(last,MJObj.findMyHand((MainApp.myTurn+2)%4)) || canWhoo(last,MJObj.findMyHand((MainApp.myTurn+2)%4))){
+            epgw=true;
+        }
+        return epgw;
+ }
+
+ private class myTimerTask extends TimerTask{
+
+     @Override
+     public void run() {
+
+     }
+ }
+private Handler handler=new MyHandler();
+    public class countdown implements Runnable{
+
+        @Override
+        public void run() {
+            Bundle bundle=new Bundle();
+            for(int i=5;i>=0;i--){
+                Message msg=new Message();//注意在sendmessage後,Handler 會將 Message 加入 MessageQueue 中，造成下次要處理的message，已經不是原來的對象,
+                //因此每使用後,都要new一個出來,不然會出現 This message is already in use.的錯誤
+                try {
+                    bundle.putInt("time",i);
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);//每秒丟出一個bundle給handler,注意每次都要丟給沒用過的message物件
+                    //要提的是,似乎message物件有使用的上限?
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }}
+    }
+    private class MyHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+//            每次收到數據
+            Bundle b = msg.getData();
+            int time = b.getInt("time");
+            count.setText("剩餘:"+time+"秒後我要抽牌");
+        }
     }
 
     public OriginMJ getMJObj(){
