@@ -99,9 +99,12 @@ public class framlayout extends Fragment{
                         public void run() {
                             MJObj=playingActivity.getMJObj();
                             decision= MJObj.getDecision();    //0.0.0.0
-                            if(Collections.max(decision)==200){
-                                playingActivity.Gongwhat();
+                            if(MJObj.getWhosTurn()==MainApp.myTurn && Collections.max(decision)==200){   //自己暗槓  TODO Gongwhat要帶參數了
+                                playingActivity.Gongwhat(true);
+                            }else if(Collections.max(decision)==200){                                   //別人槓牌
+                                playingActivity.Gongwhat(false);
                             }
+
                         }
                     },2000);
                     break;
@@ -115,17 +118,20 @@ public class framlayout extends Fragment{
                             MJObj=playingActivity.getMJObj();
                             decision= MJObj.getDecision();    //0.0.0.0
                             for(int i =0;i<4;i++){
+                                //從下家開始 找出最優先胡牌的那個人，找到就終止迴圈  (莊家也能加入判斷，因為只有莊家自摸才會進來跑其權重也只有自己有值)
+                                //(MJObj.getWhosTurn+3)%4 為打牌那位放槍者  同時也為自摸者
                                if(decision.get((MJObj.getWhosTurn()+3+i)%4) ==1000){
-                                   if(MainApp.myTurn==(MJObj.getWhosTurn()+3+i)%4){
+                                   if(MainApp.myTurn==(MJObj.getWhosTurn()+3+i)%4){     //當最優先胡牌的人是我，才做這件事情 所以四家只有一人做
                                        //胡牌
-                                       Log.v("leo","恭喜你贏惹");
+                                       playingActivity.whooGame(MainApp.myTurn,(MJObj.getWhosTurn()+3)%4);
+                                       Log.v("leo","whooGame(誰胡牌:"+MainApp.myTurn+",誰放槍: "+((MJObj.getWhosTurn()+3)%4)+")");
                                    }
-                                   return;
+                                   //break放這邊很重要 讓順位第一的人做就好 其餘人等退散
+                                   break;
                                }
                             }
                         }
                     },2000);
-                    //...
                     break;
                 default:
                     //更改權重

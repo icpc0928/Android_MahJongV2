@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:layout_width="20dp"
-    android:layout_height="15dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
     <ImageView
         android:id="@+id/iv_handCards"
-        android:layout_width="20dp"
-        android:layout_height="15dp"
-        android:rotation="180"
+        android:layout_width="18dp"
+        android:layout_height="30dp"
         />
 
 
-</LinearLayout>
+</RelativeLayout>

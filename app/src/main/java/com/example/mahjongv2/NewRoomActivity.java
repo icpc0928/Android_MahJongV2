@@ -250,7 +250,14 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj.setWhosTurn(0);  //一開始由0號摸牌
             MJObj.setIsEPGW(false);
             MJObj.setIsTimeStop(false);
+            MJObj.setIsWhoo(false);
             MJObj.setDecision();
+            MJObj.addPlayersList(player1.getText().toString());
+            MJObj.addPlayersList(player2.getText().toString());
+            MJObj.addPlayersList(player3.getText().toString());
+            MJObj.addPlayersList(player4.getText().toString());
+            MJObj.setWinnerLoser(4,4);
+
 
 
 

@@ -8,9 +8,10 @@ import java.util.List;
 
 public class OriginMJ {
     private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower ;
-    private ArrayList<Integer> MJCards ,seaCards, lastCards,decision;
+    private ArrayList<Integer> MJCards ,seaCards, lastCards,decision,winnerLoser;
+    private ArrayList<String> playersList;
     private int whosTurn , needPon,needEat ,whoWin;
-    private boolean isEPGW ,isTimeStop;
+    private boolean isEPGW ,isTimeStop,isWhoo;
 
 
     public OriginMJ(){
@@ -35,6 +36,9 @@ public class OriginMJ {
 
         seaCards = new ArrayList<>();
         decision = new ArrayList<>();
+
+        playersList=new ArrayList<>();
+        winnerLoser = new ArrayList<>();
 
         whosTurn = -1;
 
@@ -216,6 +220,29 @@ public class OriginMJ {
     }
     public boolean getIsTimeStop(){
         return isTimeStop;
+    }
+
+    public void setIsWhoo(boolean isWhoo){
+        this.isWhoo = isWhoo;
+    }
+    public boolean getIsWhoo(){
+        return isWhoo;
+    }
+
+    public void addPlayersList(String player){
+        playersList.add(player);
+    }
+    public ArrayList<String> getPlayersList(){
+        return playersList;
+    }
+
+    public void setWinnerLoser(int winner , int loser){
+        winnerLoser.add(winner);
+        winnerLoser.add(loser);
+
+    }
+    public ArrayList<Integer> getWinnerLoser(){
+        return winnerLoser;
     }
 
     public void setDecision(){

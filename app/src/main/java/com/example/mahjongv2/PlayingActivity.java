@@ -2,6 +2,7 @@ package com.example.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -22,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,17 +37,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class PlayingActivity extends AppCompatActivity {
-    private LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager,p1Out_linearLayoutManager,p2Out_linearLayoutManager,p3Out_linearLayoutManager,p4Out_linearLayoutManager;
+    public LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager,p1Out_linearLayoutManager,p2Out_linearLayoutManager,p3Out_linearLayoutManager,p4Out_linearLayoutManager;
     private GridLayoutManager gridLayoutManager,p1_gridLayoutManager;
     private RZItemTouchHelperCallback mycallback;
     private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea,rv_p1Out,rv_p2Out,rv_p3Out,rv_p4Out;
     private Button btn_mask;
     private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
     public Timer timer=new Timer();
-    private TimerTask timerTask;
 
-
-    public ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards,p1Out,temp_p1Out,p2Out,p3Out,p4Out;
+    public ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards,p1Out,temp_p1Out,p2Out,p3Out,p4Out ,winnerHand,winnerOut;
     private TextView count;
 
     private p1_HansListAdapter p1_handadapter;
@@ -57,13 +57,18 @@ public class PlayingActivity extends AppCompatActivity {
     private p2Out_ListAdapter p2Out_listAdapter;
     private p3Out_ListAdapter p3Out_listAdapter;
     private p4Out_ListAdapter p4Out_listAdapter;
+
     String uri = "@drawable/"+"mj";
+    String uril = "@drawable/"+"mjl";
+    String urir = "@drawable/"+"mjr";
 
     private FragmentManager frgm=getSupportFragmentManager();
     private FragmentTransaction frgT;
     private framlayout  framlayout;
     private EatList eatList;
-    private int state=0;
+    private  WhooDialog whooDialog;
+
+
 
     //Firebase
     private FirebaseDatabase database;
@@ -92,8 +97,6 @@ public class PlayingActivity extends AppCompatActivity {
         count=findViewById(R.id.count);
 
 
-
-
         //firebase
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(MainApp.RoomId+"gaming");
@@ -110,6 +113,8 @@ public class PlayingActivity extends AppCompatActivity {
         p2Out =new ArrayList<>();
         p3Out =new ArrayList<>();
         p4Out =new ArrayList<>();
+        winnerHand = new ArrayList<>();
+        winnerOut = new ArrayList<>();
         temp_p1Out=new ArrayList<>();
 
 
@@ -240,6 +245,30 @@ public class PlayingActivity extends AppCompatActivity {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
 
 
+            if(MJObj.getIsWhoo() && MJObj.getIsTimeStop() && MJObj.getIsEPGW()){
+                //遊戲結束dialog
+                Log.v("leo","UC結束");
+
+                winnerHand=MJObj.findMyHand(MJObj.getWinnerLoser().get(0));
+
+                winnerOut=MJObj.findMyOut(MJObj.getWinnerLoser().get(0));
+
+
+                if(MJObj.getWinnerLoser().get(0)==MJObj.getWinnerLoser().get(1)){
+                    openWhoofragment();
+                    //自摸的dialog
+                    //自摸那個人的牌組 MJObj.findMyhand(贏家)  findMyOut(贏家)
+
+                }else if(MJObj.getWinnerLoser().get(0)!=MJObj.getWinnerLoser().get(1)){
+                    //贏家= MJObj.getWinnerLoser().get(0)帶入MJObj.getPlayersList.get()
+                    //輸家= MJObj.getWinnerLoser().get(1)帶入MJObj.getPlayersList.get()
+                    //槍牌 海底最後一張
+                    //胡牌那個人的牌組 MJObj.findMyhand(贏家)  findMyOut(贏家)
+
+                }
+
+
+            }
 
             if(!MJObj.getIsEPGW() &&  !MJObj.getIsTimeStop()  && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
                 if(allEPGW()){
@@ -248,7 +277,7 @@ public class PlayingActivity extends AppCompatActivity {
                    return;
                 }
             }
-            //如果P2發現有人要EPGW 且 第一次執行到這(第二次為T直到有人打牌 且  非打牌那位    才要讓其他人判斷"我自己"要不要吃
+            //如果P2發現有人要EPGW 且 第一次執行到這(第二次為T直到有人打牌 且  非打牌那位    才要讓其他人判斷"我自己"要不要吃   (避免自己打了牌之後顯示要不要吃碰槓胡)
             if(MJObj.getIsEPGW()  && !MJObj.getIsTimeStop() && (MJObj.getWhosTurn()+3)%4 !=MainApp.myTurn && MJObj.getSeaCards().size()>0 ){
                 EPGW();
                 return;
@@ -256,13 +285,15 @@ public class PlayingActivity extends AppCompatActivity {
 
             //如果 接下來該我摸牌                   且  沒人EPGW
             // 才能摸牌    //這裡基本上只跟P2(下家)有關
-            if(MJObj.getWhosTurn()==MainApp.myTurn && !MJObj.getIsEPGW()){
+            if(MJObj.getWhosTurn()==MainApp.myTurn && !MJObj.getIsEPGW() && !MJObj.getIsWhoo()){
 
                 btn_mask.setVisibility(View.INVISIBLE);
                 //摸牌
                 p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
                 MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
                 MJObj.setMyHand(p1Hand);
+                myGW();
+
             }
 
 
@@ -330,6 +361,20 @@ public class PlayingActivity extends AppCompatActivity {
     public int imgURI(int i){
         int getCardsImg = getResources().getIdentifier(uri+i,null,getPackageName());
         return getCardsImg;
+    }
+    public int imgURIl(int i){
+        int getCardsImg = getResources().getIdentifier(uril+i,null,getPackageName());
+        return getCardsImg;
+    }
+    public int imgURIr(int i){
+        int getCardsImg = getResources().getIdentifier(urir+i,null,getPackageName());
+        return getCardsImg;
+    }
+
+    public void openWhoofragment(){
+        whooDialog=new WhooDialog();
+        frgT=frgm.beginTransaction();
+        frgT.add(R.id.framlayout,whooDialog).commit();
     }
 
     //給fragment使用的
@@ -417,26 +462,76 @@ public class PlayingActivity extends AppCompatActivity {
 
 
     }
-    public void Gongwhat(){
-        int lastSeaCard=MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+    public void Gongwhat(boolean isSelfGong){
         if(p1Out.size()==1){
             p1Out.remove(0);
         }
 
-        for (int i=0;i<4;i++){
-            p1Out.add(lastSeaCard);
-            if (i<=2){
-                p1Hand.remove(p1Hand.indexOf(lastSeaCard));
+        if(isSelfGong==true){
+            int theGongCard;
+            for(int i=0;i<p1Hand.size();i++){
+                theGongCard=p1Hand.get(i);
+                for(int j=i;j<p1Hand.size();j++){
+                    int count =0;
+                    if(p1Hand.get(j).equals(theGongCard)){
+                        count++;
+                        if(count==4){
+                            //...
+                            for(int x=0;x<4;x++){
+                                p1Out.add(theGongCard);
+                                p1Hand.remove(theGongCard);
+                            }
+                            break;
+                        }
+                    }
+                }
+
             }
+
+
+        }else if(isSelfGong==false){
+            int lastSeaCard=MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
+            for (int i=0;i<4;i++){
+                p1Out.add(lastSeaCard);
+                if (i<=2){
+                    p1Hand.remove(p1Hand.indexOf(lastSeaCard));
+                }
+            }
+            //更新畫面
+            seaCards.remove(seaCards.size()-1);//移除海底最後一張
         }
-        //更新畫面
-        seaCards.remove(seaCards.size()-1);//移除海底最後一張
 
 
         //TODO 上傳MJObj
         new Thread(new countdown()).start();
-        updateMJObj(true,0);
+        updateMJObj(false,0);
 
+    }
+    public void whooGame(int whoWin,int whoLoser){
+        MJObj.setWinnerLoser(whoWin,whoLoser);
+
+//        if(whoWin==whoLoser){       //自摸
+//            //傳進dialog getWhosTurn的牌 (無須整理)
+//            //誰自摸(玩家名稱)
+//            //MJObj.findMyOut(MJObj.getWhosTurn()); 自摸贏家外面的牌
+//            //MJObj.findMyHand(MJObj.getWhosTurn());自摸贏家的手牌 Arr
+//
+//            Log.v("leo","自摸"+MJObj.getPlayersList().get(whoWin));
+//            //這上下都有小錯誤，目前winerl跟loser都只有贏家才會給值沒上傳到firebase!!!
+//
+//        }else{                      //胡牌
+//            //whoLoser為放槍玩家的當時排序的順位
+//            //seaCards.get(seaCards.size()-1); 放槍的那張牌 int
+//            //whoWin 胡牌的(玩家名稱)
+//            //MJObj.findMyOut(whoWin);  胡牌家外面的牌
+//            //MJObj.findMyHand(whoWin); 胡牌家的手牌
+//
+//            Log.v("leo","胡牌:"+MJObj.getPlayersList().get(whoWin));
+//            Log.v("leo","放槍:"+MJObj.getPlayersList().get(whoLoser));
+//        }
+        MJObj.setIsWhoo(true);
+        MJObj.setIsTimeStop(true);
+        updateMJObj(true,0);
 
     }
     ///調配器
@@ -669,8 +764,7 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull p2_HansListAdapter.ViewHolder holder, int position) {
             ImageView iv = holder.iv;
-            iv.setRotation(270);
-            iv.setImageResource(imgURI(60));
+            iv.setImageResource(imgURIl(60));
         }
 
         @Override
@@ -727,8 +821,7 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull p4_HansListAdapter.ViewHolder holder, int position) {
             ImageView iv = holder.iv;
-            iv.setRotation(90);
-            iv.setImageResource(imgURI(60));
+            iv.setImageResource(imgURIr(60));
 
 
         }
@@ -834,10 +927,10 @@ public class PlayingActivity extends AppCompatActivity {
             //要判斷是吃碰還是槓,吃碰用不到iv4
 
             if(p2Out.size()!=1){
-                iv1.setImageResource(imgURI(p2Out.get(position*4+0)));
-                iv2.setImageResource(imgURI(p2Out.get(position*4+1)));
-                iv3.setImageResource(imgURI(p2Out.get(position*4+2)));
-                iv4.setImageResource(imgURI(p2Out.get(position*4+3)));
+                iv1.setImageResource(imgURIl(p2Out.get(position*4+0)));
+                iv2.setImageResource(imgURIl(p2Out.get(position*4+1)));
+                iv3.setImageResource(imgURIl(p2Out.get(position*4+2)));
+                iv4.setImageResource(imgURIl(p2Out.get(position*4+3)));
             }
         }
         @Override
@@ -916,10 +1009,10 @@ public class PlayingActivity extends AppCompatActivity {
             //要判斷是吃碰還是槓,吃碰用不到iv4
 
             if(p4Out.size()!=1){
-                iv1.setImageResource(imgURI(p4Out.get(position*4+0)));
-                iv2.setImageResource(imgURI(p4Out.get(position*4+1)));
-                iv3.setImageResource(imgURI(p4Out.get(position*4+2)));
-                iv4.setImageResource(imgURI(p4Out.get(position*4+3)));
+                iv1.setImageResource(imgURIr(p4Out.get(position*4+0)));
+                iv2.setImageResource(imgURIr(p4Out.get(position*4+1)));
+                iv3.setImageResource(imgURIr(p4Out.get(position*4+2)));
+                iv4.setImageResource(imgURIr(p4Out.get(position*4+3)));
             }
         }
         @Override
@@ -938,6 +1031,10 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+
 
     public class MyItemDecoration extends RecyclerView.ItemDecoration{
         @Override
@@ -1019,6 +1116,22 @@ public class PlayingActivity extends AppCompatActivity {
         result = whooAlgorithm.canWhoo(temp);
         return result;
     }
+    private boolean canMyGong(ArrayList<Integer> myHand){
+        boolean result = false;
+        for(int i=0;i<myHand.size()-1;i++){
+            for(int j =i;j<myHand.size();j++){
+                int count =0;
+                if(myHand.get(i)==myHand.get(j)){
+                    count++;
+                }
+                if(count == 4){
+                    result=true;
+                }
+            }
+        }
+        return result;
+    }
+
 
  private void EPGW(){   //現在會進來判斷的只有打牌之外的人
      int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
@@ -1039,6 +1152,22 @@ public class PlayingActivity extends AppCompatActivity {
          frgT.add(R.id.framlayout, framlayout).commit();
      }
  }
+
+ private void myGW(){ //判斷摸牌後 "目前的整副牌" 有沒有要 槓牌or自摸
+        boolean bGong , bWhoo;
+        WhooAlgorithm whooAlgorithm=new WhooAlgorithm();
+
+        bGong=canMyGong(p1Hand);
+        bWhoo=whooAlgorithm.canWhoo(p1Hand);
+        if(bGong||bWhoo){
+            MJObj.setIsTimeStop(true);
+            myRef.setValue(MJObj);
+            framlayout = framlayout.EatPongGongWhoo(false,false,bGong,bWhoo);
+            frgT=frgm.beginTransaction();
+            frgT.add(R.id.framlayout, framlayout).commit();
+        }
+ }
+
  private boolean allEPGW(){
         boolean epgw=false;
 
@@ -1083,6 +1212,7 @@ private Handler handler=new MyHandler();
         }
 
     }
+
 
     public OriginMJ getMJObj(){
         return MJObj;
