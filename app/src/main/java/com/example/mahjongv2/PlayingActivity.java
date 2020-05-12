@@ -244,32 +244,15 @@ public class PlayingActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
 
-
+            //遊戲結束dialog
             if(MJObj.getIsWhoo() && MJObj.getIsTimeStop() && MJObj.getIsEPGW()){
-                //遊戲結束dialog
-                Log.v("leo","UC結束");
-
                 winnerHand=MJObj.findMyHand(MJObj.getWinnerLoser().get(0));
-
                 winnerOut=MJObj.findMyOut(MJObj.getWinnerLoser().get(0));
-
-
-                if(MJObj.getWinnerLoser().get(0)==MJObj.getWinnerLoser().get(1)){
-                    openWhoofragment();
-                    //自摸的dialog
-                    //自摸那個人的牌組 MJObj.findMyhand(贏家)  findMyOut(贏家)
-
-                }else if(MJObj.getWinnerLoser().get(0)!=MJObj.getWinnerLoser().get(1)){
-                    //贏家= MJObj.getWinnerLoser().get(0)帶入MJObj.getPlayersList.get()
-                    //輸家= MJObj.getWinnerLoser().get(1)帶入MJObj.getPlayersList.get()
-                    //槍牌 海底最後一張
-                    //胡牌那個人的牌組 MJObj.findMyhand(贏家)  findMyOut(贏家)
-
-                }
-
-
+                openWhoofragment(MJObj.getWinnerLoser().get(0),MJObj.getWinnerLoser().get(1),MJObj.getSeaCards().get(MJObj.getSeaCards().size()-1));
             }
 
+
+            //下家檢查有沒有人要吃碰槓胡 若有 觸發下面條件且讓時間暫停
             if(!MJObj.getIsEPGW() &&  !MJObj.getIsTimeStop()  && MJObj.getWhosTurn()==MainApp.myTurn && MJObj.getSeaCards().size()>0){
                 if(allEPGW()){
                    MJObj.setIsEPGW(true);
@@ -371,8 +354,15 @@ public class PlayingActivity extends AppCompatActivity {
         return getCardsImg;
     }
 
-    public void openWhoofragment(){
-        whooDialog=new WhooDialog();
+    //參數帶入前 winner,loser是 0~3需轉換為名稱 gunCard為海底陣列最後一張的值 也需轉
+    public void openWhoofragment(int winner ,int loser, int gunCard){
+        Log.v("leo","贏家:"+MJObj.getPlayersList().get(winner));
+        Log.v("leo","輸家:"+MJObj.getPlayersList().get(loser));
+        Log.v("leo","尾張imgRes:"+imgURI(gunCard));
+
+
+
+        whooDialog=new WhooDialog(MJObj.getPlayersList().get(winner),MJObj.getPlayersList().get(loser),imgURI(gunCard));
         frgT=frgm.beginTransaction();
         frgT.add(R.id.framlayout,whooDialog).commit();
     }

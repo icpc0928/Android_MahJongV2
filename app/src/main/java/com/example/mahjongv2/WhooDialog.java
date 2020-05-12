@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 /**
@@ -29,20 +30,52 @@ public class WhooDialog extends Fragment {
     private rv_Dialog_OutAdapter rv_dialog_outAdapter;
     private LinearLayoutManager linearLayoutManager,linearLayoutManager2;
     private Button btn_dialog_gotoHome;
+    private TextView tv_gunnerName,tv_gunnerName_title,tv_whooerName;
+    private ImageView iv_dialog_seaCard;
+    private String winner, loser;
+    private int gunCardImgRes;
+
+
     public WhooDialog() {
         // Required empty public constructor
+    }
+    public WhooDialog(String winner,String loser,int gunCardImgRes){
+        this.winner = winner;
+        this.loser = loser ;
+        this.gunCardImgRes = gunCardImgRes;
+
+
     }
 
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState ) {
         // Inflate the layout for this fragment
         view =inflater.inflate(R.layout.fragment_whoo_dialog, container, false);
         rv_dialog_handCards=view.findViewById(R.id.rv_dialog_handCards);
         rv_dialog_outCards=view.findViewById(R.id.rv_dialog_outCards);
         btn_dialog_gotoHome=view.findViewById(R.id.btn_dialog_gotoHome);
+        tv_gunnerName_title=view.findViewById(R.id.tv_gunnerName_title);
+        tv_gunnerName=view.findViewById(R.id.tv_gunnerName);
+        tv_whooerName=view.findViewById(R.id.tv_whooerName);
+        iv_dialog_seaCard=view.findViewById(R.id.iv_dialog_seaCard);
+
+
+
+        tv_whooerName.setText(winner);
+        if(winner.equals(loser)){   //自摸 放槍文字取消 槍牌取消
+            tv_gunnerName_title.setVisibility(View.INVISIBLE);
+            tv_gunnerName.setVisibility(View.INVISIBLE);
+            iv_dialog_seaCard.setVisibility(View.INVISIBLE);
+        }else {  //胡牌 要有放槍+人名 +放槍的牌
+            tv_gunnerName.setText(loser);
+            iv_dialog_seaCard.setImageResource(gunCardImgRes);
+        }
+
+
+
         btn_dialog_gotoHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
