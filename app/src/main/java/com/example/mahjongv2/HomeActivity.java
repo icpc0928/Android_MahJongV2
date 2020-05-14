@@ -1,5 +1,6 @@
 package com.example.mahjongv2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -16,6 +17,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +35,10 @@ public class HomeActivity extends AppCompatActivity {
     private Button btn_logout , btn_gotoRooms ,btn_gotoSmallGame;
     SessionManager sessionManager;
 
+    //Firebase
+//    private FirebaseDatabase database;
+//    private DatabaseReference myRef;
+
 
 
 
@@ -37,12 +47,37 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+//        database = FirebaseDatabase.getInstance();
+//        myRef = database.getReference();
+
         //SessionManager.java
-        sessionManager = new SessionManager(this);
-        sessionManager.checkLogin();
-
-
-
+//        sessionManager = new SessionManager(this);
+//        sessionManager.checkLogin();
+//
+        //檢查是否正在玩,如果是則進入遊戲畫面
+//        if(sessionManager.isPlaying()){
+//            //單次監聽詢問該房間是否還在玩,如果是的話就進入，如果沒有的話清空沙盒內的資料
+//            final String temp = sessionManager.getROOM_ID()+"gaming";
+//            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    for(DataSnapshot childSnapshot: dataSnapshot.getChildren()){
+//                        if(childSnapshot.getKey().equals(temp)){
+//                            Log.v("leo","hi");
+//                            MainApp.myTurn= sessionManager.getMY_TURN();
+//                            MainApp.RoomId= sessionManager.getROOM_ID();
+//                            Intent intent = new Intent(HomeActivity.this,PlayingActivity.class);
+//                            startActivity(intent);
+//                            HomeActivity.this.finish();
+//                            break;
+//                        }
+//                    }
+//                }
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError databaseError) {
+//                }
+//            });
+//        }
 
         name = findViewById(R.id.name);
         email= findViewById(R.id.email);
@@ -93,5 +128,21 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
 
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        );
+    }
 }

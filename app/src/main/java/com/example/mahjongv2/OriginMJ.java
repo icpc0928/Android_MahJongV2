@@ -10,7 +10,7 @@ public class OriginMJ {
     private ArrayList<Integer>  p1Hand ,p1Out,p1Flower ,p2Hand,p2Out,p2Flower ,p3Hand,p3Out,p3Flower ,p4Hand,p4Out,p4Flower ;
     private ArrayList<Integer> MJCards ,seaCards, lastCards,decision,winnerLoser;
     private ArrayList<String> playersList;
-    private int whosTurn , needPon,needEat ,whoWin;
+    private int whosTurn , needPon,needEat ,whoWin,playEPGWMusic;
     private boolean isEPGW ,isTimeStop,isWhoo;
 
 
@@ -237,8 +237,12 @@ public class OriginMJ {
     }
 
     public void setWinnerLoser(int winner , int loser){
-        winnerLoser.add(winner);
-        winnerLoser.add(loser);
+        if(winnerLoser.size()<2){
+            winnerLoser.add(winner);
+            winnerLoser.add(loser);
+        }
+        winnerLoser.set(0,winner);
+        winnerLoser.set(1,loser);
 
     }
     public ArrayList<Integer> getWinnerLoser(){
@@ -261,5 +265,12 @@ public class OriginMJ {
     public ArrayList<Integer> getDecision(){
 
         return decision;
+    }
+
+    public void setPlayEPGWMusic(int x){
+        playEPGWMusic= x;
+    }
+    public int getPlayEPGWMusic(){
+        return playEPGWMusic;
     }
 }

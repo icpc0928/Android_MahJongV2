@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -33,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_login;
     private TextView link_regist;
     private ProgressBar loading;
+    private View.OnFocusChangeListener textFocusChangeListener;
 //    private static String URL_LOGIN = "http://192.168.0.101/android_register_login/login.php";
     private static String URL_LOGIN = "http://leo0928.synology.me/android_register_login/login.php";
     SessionManager sessionManager;
@@ -79,7 +83,103 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //輸入完第一個後,按下軟鍵盤的右下角,到下一個輸入地方--->按鍵遮擋的問題V
+        email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+
+                }
+                return false;
+            }
+        });
+
+        //點選textfield內輸入,再點textfield外時,把返回隱藏
+        textFocusChangeListener=new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                // TODO Auto-generated method stub
+                if(v.getId()==email.getId()){
+                    //text獲取交點的時候把返回,home隱藏
+                    Log.v("wei","wei");
+                    hideSystemUI();
+                }else{
+                    //text失去焦點的時候關閉軟鍵盤
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                }
+            }
+        };
+
+
+
+
     }
+
+
+    //畫面真正可以看到的時間點...就是在此生命周期被執行時。
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    /**
+     * SYSTEM_UI_FLAG_IMMERSIVE------------->點出隱藏的狀態欄後,隔不久不隱藏
+     * SYSTEM_UI_FLAG_IMMERSIVE_STICKY------>點出隱藏的狀態欄後,隔不久會再隱藏
+     * View.SYSTEM_UI_FLAG_LAYOUT_STABLE---->固定住layout的位置
+     * View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN 狀態欄上浮(你可以再調顏色)
+     * View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION導覽列上浮,也就是看起來浮在activivty上
+     * View.SYSTEM_UI_FLAG_FULLSCREEN------->狀態欄隱藏
+     * SYSTEM_UI_FLAG_HIDE_NAVIGATION------->隱藏導覽列
+     */
+
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        // Set the content to appear under the system bars so that the
+                        //設定系統要顯示的內容,這樣內容才不會因為系統bar隱藏或顯示時縮放
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        );
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+    //按返回
+    long lastExitTime=0;
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                // 判断2次点击事件时间
+                if ((System.currentTimeMillis() - lastExitTime) > 2000) {
+                    Toast.makeText(LoginActivity.this, "再按一次退出",Toast.LENGTH_SHORT).show();
+                    lastExitTime = System.currentTimeMillis();
+                } else {
+                    finish();
+                }
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+
+
+
+
 
     //LOGIN按鈕能被按做的事情
     private void Login(final String email, final String password) {
@@ -100,31 +200,21 @@ public class LoginActivity extends AppCompatActivity {
                             Log.v("leo","String Success: "+success);
                             //當success內的值為1 表示有拿到東西
                             if(success.equals("1")){
-
                                 for(int i = 0; i<jsonArray.length();i++){
-
                                     //解JSONObject
                                     JSONObject object = jsonArray.getJSONObject(i);
-
                                     String name = object.getString("name").trim();
                                     String email = object.getString("email").trim();
-
                                     //只有在LOGIN按下後確實抓到帳號跟名稱 才能創造Session
                                     sessionManager.createSession(name,email);
-
                                     Intent intent = new Intent(LoginActivity.this,HomeActivity.class);
                                     intent.putExtra("name",name);
                                     intent.putExtra("email",email);
                                     startActivity(intent);
-
-
                                     loading.setVisibility(View.GONE);
                                     btn_login.setVisibility(View.VISIBLE);
-
                                 }
-
                             }
-
                         } catch (Exception e) {
                             Log.v("leo","Catch Error : "+e.toString());
                             loading.setVisibility(View.GONE);

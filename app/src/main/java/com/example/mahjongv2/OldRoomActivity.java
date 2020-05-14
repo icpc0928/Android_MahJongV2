@@ -129,6 +129,7 @@ public class OldRoomActivity extends AppCompatActivity {
             //TODO 房主按下開始遊戲後 isReady == true
             Log.v("leo","isReady: "+obj.getIsReady());
             if(obj.getIsReady()){
+                sessionManager.createPlayingPath(MainApp.RoomId,MainApp.myTurn);  //將遊戲的path 跟 你是第幾位 放進沙盒 做到斷線重連的機制 NewRoomAct內也有一個
                 Intent intent = new Intent(OldRoomActivity.this,PlayingActivity.class);
                 myRef.removeEventListener(listener);
                 startActivity(intent);

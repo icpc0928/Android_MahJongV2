@@ -12,9 +12,13 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
@@ -42,11 +47,12 @@ public class PlayingActivity extends AppCompatActivity {
     private RZItemTouchHelperCallback mycallback;
     private RecyclerView rv_p1Hand,rv_p2Hand,rv_p3Hand,rv_p4Hand,rv_sea,rv_p1Out,rv_p2Out,rv_p3Out,rv_p4Out;
     private Button btn_mask;
-    private ImageView iv_p2GetCard,iv_p3GetCard,iv_p4GetCard;
     public Timer timer=new Timer();
+    private int howManySeaCardsNow;
 
     public ArrayList<Integer> p1Hand,p2Hand,p3Hand,p4Hand,seaCards,p1Out,temp_p1Out,p2Out,p3Out,p4Out ,winnerHand,winnerOut;
-    private TextView count;
+    private TextView tv_show_lastcards;
+    private ImageView whosturn;
 
     private p1_HansListAdapter p1_handadapter;
     private p2_HansListAdapter p2_handadapter;
@@ -62,12 +68,31 @@ public class PlayingActivity extends AppCompatActivity {
     String uril = "@drawable/"+"mjl";
     String urir = "@drawable/"+"mjr";
 
+
     private FragmentManager frgm=getSupportFragmentManager();
     private FragmentTransaction frgT;
     private framlayout  framlayout;
     private EatList eatList;
     private  WhooDialog whooDialog;
 
+    //跟 MyService 做繫結
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
 
 
     //Firebase
@@ -85,16 +110,15 @@ public class PlayingActivity extends AppCompatActivity {
         rv_p2Hand=findViewById(R.id.rv_p2HandCards);
         rv_p3Hand=findViewById(R.id.rv_p3HandCards);
         rv_p4Hand=findViewById(R.id.rv_p4HandCards);
-        iv_p2GetCard=findViewById(R.id.iv_p2GetCard);
-        iv_p3GetCard=findViewById(R.id.iv_p3GetCard);
-        iv_p4GetCard=findViewById(R.id.iv_p4GetCard);
+
         rv_sea=findViewById(R.id.rv_sea);
         btn_mask = findViewById(R.id.btn_mask);
         rv_p1Out=findViewById(R.id.rv_p1Out);
         rv_p2Out=findViewById(R.id.rv_p2Out);
         rv_p3Out=findViewById(R.id.rv_p3Out);
         rv_p4Out=findViewById(R.id.rv_p4Out);
-        count=findViewById(R.id.count);
+        tv_show_lastcards=findViewById(R.id.tv_show_lastcards);
+        whosturn=findViewById(R.id.whosturn);
 
 
         //firebase
@@ -116,8 +140,11 @@ public class PlayingActivity extends AppCompatActivity {
         winnerHand = new ArrayList<>();
         winnerOut = new ArrayList<>();
         temp_p1Out=new ArrayList<>();
+        howManySeaCardsNow =0;
+        whosturn.setImageResource(R.drawable.whosturn);
+        MJObj = new OriginMJ();
 
-
+        myService = new MyService();
 
 
 
@@ -210,17 +237,64 @@ public class PlayingActivity extends AppCompatActivity {
         rv_sea.setAdapter(seaAdapter);
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+        );
+    }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //啟動型先
+        playBackMusic();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        pauseBackMusic();
+        myService.playMedia();
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onRestart() {
+        myService.stopMedia();
+        super.onRestart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+    }
 
     ValueEventListener singleListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
-
-
-
-
 
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);   //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
@@ -243,11 +317,38 @@ public class PlayingActivity extends AppCompatActivity {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             MJObj = dataSnapshot.getValue(OriginMJ.class);
+            //判斷EPGW音效與否
+            if(MJObj.getPlayEPGWMusic()!=0){
+                myService.play(MJObj.getPlayEPGWMusic());
 
-            //遊戲結束dialog
+            }
+
+            //設定圖示 跟顯示剩餘牌張
+            tv_show_lastcards.setText("剩:"+"\n"+MJObj.getLastCards().size());
+            whosturn.setRotation(90*(MainApp.myTurn-MJObj.getWhosTurn()));
+
+
+            //判斷是不是打牌 放打牌的音效(四家都放)
+            if(MJObj.getSeaCards().size()>howManySeaCardsNow){
+                howManySeaCardsNow= MJObj.getSeaCards().size();
+                Log.v("leo",MJObj.getSeaCards().get(MJObj.getSeaCards().size()-1)+"<<<<--");
+                myService.play(MJObj.getSeaCards().get(MJObj.getSeaCards().size()-1));
+
+            }else{
+                howManySeaCardsNow= MJObj.getSeaCards().size();
+            }
+
+
+            //遊戲結束dialog  whoo=timeStop=EPGW=true
             if(MJObj.getIsWhoo() && MJObj.getIsTimeStop() && MJObj.getIsEPGW()){
                 winnerHand=MJObj.findMyHand(MJObj.getWinnerLoser().get(0));
                 winnerOut=MJObj.findMyOut(MJObj.getWinnerLoser().get(0));
+                openWhoofragment(MJObj.getWinnerLoser().get(0),MJObj.getWinnerLoser().get(1),MJObj.getSeaCards().get(MJObj.getSeaCards().size()-1));
+            }
+            //平手遊戲結束dialog
+            if(MJObj.getLastCards().size()<16){
+                winnerHand=MJObj.findMyHand(MainApp.myTurn);
+                winnerOut=MJObj.findMyOut(MainApp.myTurn);
                 openWhoofragment(MJObj.getWinnerLoser().get(0),MJObj.getWinnerLoser().get(1),MJObj.getSeaCards().get(MJObj.getSeaCards().size()-1));
             }
 
@@ -271,6 +372,7 @@ public class PlayingActivity extends AppCompatActivity {
             if(MJObj.getWhosTurn()==MainApp.myTurn && !MJObj.getIsEPGW() && !MJObj.getIsWhoo()){
 
                 btn_mask.setVisibility(View.INVISIBLE);
+
                 //摸牌
                 p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
                 MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
@@ -280,36 +382,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
 
 
-                //假設我是1p,且是第一輪出牌
-                // 摸牌  if內寫MJObj.getWhosTurn()==MainApp.myTurn
-
-//                if(false ){
-//
-//                    btn_mask.setVisibility(View.INVISIBLE);
-//                    iv_p2GetCard.setVisibility(View.INVISIBLE);
-//                    iv_p3GetCard.setVisibility(View.INVISIBLE);
-//                    iv_p4GetCard.setVisibility(View.INVISIBLE);
-//                    //摸牌
-//                    p1Hand.add(0,MJObj.getLastCards().get(MJObj.getLastCards().size()-1));
-//                    MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
-//                    MJObj.setMyHand(p1Hand);
-//                    //還沒上船firebase
-//                }else{//假設我是2p,3p,4p,執行這裡
-//                    if(MJObj.getWhosTurn()==(MainApp.myTurn+1)%4){
-//                        iv_p2GetCard.setVisibility(View.VISIBLE);
-//                        iv_p3GetCard.setVisibility(View.INVISIBLE);
-//                        iv_p4GetCard.setVisibility(View.INVISIBLE);
-//                    }else if(MJObj.getWhosTurn()==(MainApp.myTurn+2)%4){
-//                        iv_p2GetCard.setVisibility(View.INVISIBLE);
-//                        iv_p3GetCard.setVisibility(View.VISIBLE);
-//                        iv_p4GetCard.setVisibility(View.INVISIBLE);
-//                    }else if(MJObj.getWhosTurn()==(MainApp.myTurn+3)%4){
-//                        iv_p2GetCard.setVisibility(View.INVISIBLE);
-//                        iv_p3GetCard.setVisibility(View.INVISIBLE);
-//                        iv_p4GetCard.setVisibility(View.VISIBLE);
-//                    }
-//                    btn_mask.setVisibility(View.VISIBLE);
-//                }
 
             p1Hand= MJObj.findMyHand((MainApp.myTurn+0)%4);     //TODO myTrun= 0|1|2|3; 0=>自己
             p2Hand= MJObj.findMyHand((MainApp.myTurn+1)%4);
@@ -317,6 +389,7 @@ public class PlayingActivity extends AppCompatActivity {
             p4Hand= MJObj.findMyHand((MainApp.myTurn+3)%4);
             p1Out = MJObj.findMyOut((MainApp.myTurn+0)%4);      //TODO myTrun= 0|1|2|3; 0=>自己
             p2Out = MJObj.findMyOut((MainApp.myTurn+1)%4);
+            Log.v("leo",""+p2Out.size());
             p3Out = MJObj.findMyOut((MainApp.myTurn+2)%4);
             p4Out = MJObj.findMyOut((MainApp.myTurn+3)%4);
 
@@ -354,19 +427,38 @@ public class PlayingActivity extends AppCompatActivity {
         return getCardsImg;
     }
 
+    //播放音樂
+    public void playBackMusic(){
+        Intent intent=new Intent(this,MyService.class);
+        intent.putExtra("ACTION","start");
+        startService(intent);
+    }
+    //暫停音樂
+    public void pauseBackMusic(){
+        Intent intent=new Intent(this,MyService.class);
+        intent.putExtra("ACTION","pause");
+        startService(intent);
+    }
+
+
+    //測試
+
     //參數帶入前 winner,loser是 0~3需轉換為名稱 gunCard為海底陣列最後一張的值 也需轉
     public void openWhoofragment(int winner ,int loser, int gunCard){
-        Log.v("leo","贏家:"+MJObj.getPlayersList().get(winner));
-        Log.v("leo","輸家:"+MJObj.getPlayersList().get(loser));
-        Log.v("leo","尾張imgRes:"+imgURI(gunCard));
+//        Log.v("leo","贏家:"+MJObj.getPlayersList().get(winner));
+//        Log.v("leo","輸家:"+MJObj.getPlayersList().get(loser));
+//        Log.v("leo","尾張imgRes:"+imgURI(gunCard));
 
 
+        if(winner<4 && loser<4){
+            whooDialog=new WhooDialog(MJObj.getPlayersList().get(winner),MJObj.getPlayersList().get(loser),imgURI(gunCard));
+        }else{
+            whooDialog=new WhooDialog(" "," ",imgURI(gunCard));
+        }
 
-        whooDialog=new WhooDialog(MJObj.getPlayersList().get(winner),MJObj.getPlayersList().get(loser),imgURI(gunCard));
         frgT=frgm.beginTransaction();
         frgT.add(R.id.framlayout,whooDialog).commit();
     }
-
     //給fragment使用的
     //關閉fragment
     public void closeFragment(){
@@ -378,7 +470,6 @@ public class PlayingActivity extends AppCompatActivity {
         frgT=frgm.beginTransaction();
         frgT.remove(eatList).commit();
     }
-
     //點選到eatlist fragment
     public void gotoEatList(){
 
@@ -425,6 +516,7 @@ public class PlayingActivity extends AppCompatActivity {
         p1Out_listAdapter.notifyDataSetChanged();
         temp_p1Out.clear();//清空暫存區
         //TODO 上傳MJObj 並且讓你能打牌
+        MJObj.setPlayEPGWMusic(20); //放吃牌音效
         new Thread(new countdown()).start();
         updateMJObj(true,0);
     }
@@ -446,6 +538,7 @@ public class PlayingActivity extends AppCompatActivity {
         seaCards.remove(seaCards.size()-1);//移除海底最後一張
 
         //TODO 上傳MJObj
+        MJObj.setPlayEPGWMusic(30); //放吃牌音效
         new Thread(new countdown()).start();
 
         updateMJObj(true,0);
@@ -493,6 +586,7 @@ public class PlayingActivity extends AppCompatActivity {
 
 
         //TODO 上傳MJObj
+        MJObj.setPlayEPGWMusic(40); //放吃牌音效
         new Thread(new countdown()).start();
         updateMJObj(false,0);
 
@@ -500,30 +594,17 @@ public class PlayingActivity extends AppCompatActivity {
     public void whooGame(int whoWin,int whoLoser){
         MJObj.setWinnerLoser(whoWin,whoLoser);
 
-//        if(whoWin==whoLoser){       //自摸
-//            //傳進dialog getWhosTurn的牌 (無須整理)
-//            //誰自摸(玩家名稱)
-//            //MJObj.findMyOut(MJObj.getWhosTurn()); 自摸贏家外面的牌
-//            //MJObj.findMyHand(MJObj.getWhosTurn());自摸贏家的手牌 Arr
-//
-//            Log.v("leo","自摸"+MJObj.getPlayersList().get(whoWin));
-//            //這上下都有小錯誤，目前winerl跟loser都只有贏家才會給值沒上傳到firebase!!!
-//
-//        }else{                      //胡牌
-//            //whoLoser為放槍玩家的當時排序的順位
-//            //seaCards.get(seaCards.size()-1); 放槍的那張牌 int
-//            //whoWin 胡牌的(玩家名稱)
-//            //MJObj.findMyOut(whoWin);  胡牌家外面的牌
-//            //MJObj.findMyHand(whoWin); 胡牌家的手牌
-//
-//            Log.v("leo","胡牌:"+MJObj.getPlayersList().get(whoWin));
-//            Log.v("leo","放槍:"+MJObj.getPlayersList().get(whoLoser));
-//        }
+
+        //TODO 上傳MJObj
+        MJObj.setPlayEPGWMusic(48); //放吃牌音效
         MJObj.setIsWhoo(true);
         MJObj.setIsTimeStop(true);
         updateMJObj(true,0);
 
     }
+
+
+
     ///調配器
     public interface ItemMoveSwipeListener {
         /**
@@ -724,6 +805,7 @@ public class PlayingActivity extends AppCompatActivity {
             MJObj.originDecision();
 
             //同步物件上傳到Firebase
+            MJObj.setPlayEPGWMusic(0);
             updateMJObj(false,1);
             notifyItemRemoved(position);
 
@@ -1021,11 +1103,6 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
-
-
     public class MyItemDecoration extends RecyclerView.ItemDecoration{
         @Override
         public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
@@ -1050,7 +1127,6 @@ public class PlayingActivity extends AppCompatActivity {
         MJObj.getDecision().set(player,weight);
         myRef.setValue(MJObj);
     }
-
 
     private boolean canEat(int lastSeaCard,ArrayList<Integer> whosHand){
         boolean result = false;
@@ -1123,7 +1199,7 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
 
- private void EPGW(){   //現在會進來判斷的只有打牌之外的人
+    private void EPGW(){   //現在會進來判斷的只有打牌之外的人
      int lastSeaCard = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
      //判斷MJObj.p1Hand有沒有能吃碰槓胡的條件
      //把.吃.碰.槓.胡.叫出來
@@ -1143,7 +1219,7 @@ public class PlayingActivity extends AppCompatActivity {
      }
  }
 
- private void myGW(){ //判斷摸牌後 "目前的整副牌" 有沒有要 槓牌or自摸
+    private void myGW(){ //判斷摸牌後 "目前的整副牌" 有沒有要 槓牌or自摸
         boolean bGong , bWhoo;
         WhooAlgorithm whooAlgorithm=new WhooAlgorithm();
 
@@ -1158,7 +1234,7 @@ public class PlayingActivity extends AppCompatActivity {
         }
  }
 
- private boolean allEPGW(){
+    private boolean allEPGW(){
         boolean epgw=false;
 
         int last = MJObj.getSeaCards().get(MJObj.getSeaCards().size() - 1);
@@ -1170,16 +1246,7 @@ public class PlayingActivity extends AppCompatActivity {
         return epgw;
  }
 
- private class myTimerTask extends TimerTask{
-
-     @Override
-     public void run() {
-
-     }
- }
-private Handler handler=new MyHandler();
-
-
+    private Handler handler=new MyHandler();
     public class countdown implements Runnable{
 
         @Override
@@ -1192,7 +1259,6 @@ private Handler handler=new MyHandler();
 
         }
     }
-
     private class MyHandler extends Handler {
         @Override
         public void handleMessage(@NonNull Message msg) {

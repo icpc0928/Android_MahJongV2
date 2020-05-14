@@ -44,6 +44,7 @@
         android:layout_margin="5dp"
         >
         <TextView
+            android:id="@+id/tv_whooerName_title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="贏家 "
@@ -67,15 +68,22 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_dialog_outCards"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="52dp"
+            android:layout_gravity="bottom"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_dialog_handCards"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="52dp"
+            android:layout_marginLeft="45dp"
+            android:layout_gravity="bottom"
+            />
         <ImageView
             android:id="@+id/iv_dialog_seaCard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="18dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="45dp"
+            android:layout_gravity="bottom"
+            />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

@@ -72,6 +72,7 @@ public class framlayout extends Fragment{
                             decision= MJObj.getDecision();    //0.0.0.0
                             if(Collections.max(decision)==10){
                                 playingActivity.gotoEatList();
+
                             }
                         }
                     },3000);

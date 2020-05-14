@@ -9,6 +9,7 @@
         android:id="@+id/iv_handCards"
         android:layout_width="18dp"
         android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
         />
 
 

@@ -257,12 +257,18 @@ public class NewRoomActivity extends AppCompatActivity {
             MJObj.addPlayersList(player3.getText().toString());
             MJObj.addPlayersList(player4.getText().toString());
             MJObj.setWinnerLoser(4,4);
+            MJObj.setPlayEPGWMusic(0);
 
 
 
 
             gameRef = database.getReference(lastId+"gaming");
             gameRef.setValue(MJObj);
+
+            sessionManager.createPlayingPath(lastId,MainApp.myTurn);   //將遊戲的path 跟 你是第幾位 放進沙盒 做到斷線重連的機制 OldRoomAct內也有一個
+
+
+
 
 
 

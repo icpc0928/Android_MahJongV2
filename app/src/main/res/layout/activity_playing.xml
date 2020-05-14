@@ -101,14 +101,6 @@
         android:layout_toLeftOf="@+id/rl_p2Area"
 
         >
-        <ImageView
-            android:id="@+id/iv_p3GetCard"
-            android:layout_width="39dp"
-            android:layout_height="52dp"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/mj60"
-            android:visibility="invisible" />
-
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_p3HandCards"
@@ -166,20 +158,19 @@
             android:layout_toLeftOf="@id/rl_sea_p2"
             >
             <ImageView
-                android:layout_width="match_parent"
+                android:id="@+id/whosturn"
+                android:layout_width="49dp"
                 android:layout_height="match_parent"
-                android:layout_toRightOf="@id/rv_p1Out"
+                android:layout_alignParentRight="true"
                 />
-            <TextView
-                android:id="@+id/foot_show_lastcards"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_toRightOf="@id/rv_p1Out"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_p1Out"
-                android:layout_width="405dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/whosturn"
+
                 />
         </RelativeLayout>
         <RelativeLayout
@@ -190,22 +181,20 @@
             android:layout_toRightOf="@id/rl_sea_p4"
             android:layout_toLeftOf="@id/rl_sea_p2"
             >
-            <ImageView
-                android:id="@+id/up_arrow"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_toLeftOf="@id/rv_p3Out"
-                />
+
             <TextView
-                android:id="@+id/up_show_lastcards"
-                android:layout_width="match_parent"
+                android:id="@+id/tv_show_lastcards"
+                android:layout_width="36dp"
                 android:layout_height="match_parent"
-                android:layout_toLeftOf="@id/rv_p3Out"/>
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/mj60"
+                android:textSize="15sp"
+                />
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_p3Out"
                 android:layout_width="405dp"
                 android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
+                android:layout_toRightOf="@id/tv_show_lastcards"
 
                 android:textSize="20sp"
                 />
@@ -219,13 +208,11 @@
             android:layout_above="@id/rl_sea_p1"
             android:layout_below="@id/rl_sea_p3"
             >
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_sea"
                 android:layout_width="440dp"
-                android:layout_height="120dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                />
+                android:layout_height="120dp" />
         </RelativeLayout>
 
 

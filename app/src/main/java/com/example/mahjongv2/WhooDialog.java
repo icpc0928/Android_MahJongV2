@@ -30,10 +30,11 @@ public class WhooDialog extends Fragment {
     private rv_Dialog_OutAdapter rv_dialog_outAdapter;
     private LinearLayoutManager linearLayoutManager,linearLayoutManager2;
     private Button btn_dialog_gotoHome;
-    private TextView tv_gunnerName,tv_gunnerName_title,tv_whooerName;
+    private TextView tv_gunnerName,tv_gunnerName_title,tv_whooerName,tv_whooerName_title;
     private ImageView iv_dialog_seaCard;
     private String winner, loser;
     private int gunCardImgRes;
+    private SessionManager sessionManager;
 
 
     public WhooDialog() {
@@ -43,8 +44,6 @@ public class WhooDialog extends Fragment {
         this.winner = winner;
         this.loser = loser ;
         this.gunCardImgRes = gunCardImgRes;
-
-
     }
 
 
@@ -59,13 +58,22 @@ public class WhooDialog extends Fragment {
         btn_dialog_gotoHome=view.findViewById(R.id.btn_dialog_gotoHome);
         tv_gunnerName_title=view.findViewById(R.id.tv_gunnerName_title);
         tv_gunnerName=view.findViewById(R.id.tv_gunnerName);
+        tv_whooerName_title=view.findViewById(R.id.tv_whooerName_title);
         tv_whooerName=view.findViewById(R.id.tv_whooerName);
         iv_dialog_seaCard=view.findViewById(R.id.iv_dialog_seaCard);
+
+        sessionManager = new SessionManager(playingActivity);
 
 
 
         tv_whooerName.setText(winner);
-        if(winner.equals(loser)){   //自摸 放槍文字取消 槍牌取消
+        if(winner.equals(loser)&&winner.equals(" ")){  //平手 不顯示贏家,輸家,海底那張 只顯示自己的牌組
+            tv_whooerName_title.setVisibility(View.INVISIBLE);
+            tv_whooerName.setVisibility(View.INVISIBLE);
+            tv_gunnerName_title.setVisibility(View.INVISIBLE);
+            tv_gunnerName.setVisibility(View.INVISIBLE);
+            iv_dialog_seaCard.setVisibility(View.INVISIBLE);
+        }else if(winner.equals(loser)){   //自摸 放槍文字取消 槍牌取消
             tv_gunnerName_title.setVisibility(View.INVISIBLE);
             tv_gunnerName.setVisibility(View.INVISIBLE);
             iv_dialog_seaCard.setVisibility(View.INVISIBLE);
@@ -79,6 +87,7 @@ public class WhooDialog extends Fragment {
         btn_dialog_gotoHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sessionManager.gameOver();
                 Intent intent = new Intent(playingActivity,HomeActivity.class);
                 startActivity(intent);
                 playingActivity.finish();
@@ -137,7 +146,7 @@ public class WhooDialog extends Fragment {
         @NonNull
         @Override
         public WhooDialog.rv_Dialog_OutAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.handcard_topside, parent, false);
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.whoo_dialog_item, parent, false);
             WhooDialog.rv_Dialog_OutAdapter.viewHolder vh=new WhooDialog.rv_Dialog_OutAdapter.viewHolder(view);
             //註冊點擊
             return vh;
@@ -145,17 +154,30 @@ public class WhooDialog extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull WhooDialog.rv_Dialog_OutAdapter.viewHolder holder, int position) {
-            ImageView iv = holder.iv;
-            iv.setImageResource(playingActivity.imgURI(playingActivity.winnerOut.get(position)));
+            ImageView iv1 = holder.iv1;
+            ImageView iv2 = holder.iv2;
+            ImageView iv3 = holder.iv3;
+            ImageView iv4 = holder.iv4;
+            //要判斷是吃碰還是槓,吃碰用不到iv4
+
+            if(playingActivity.winnerOut.size()!=1){
+                iv1.setImageResource(playingActivity.imgURI(playingActivity.winnerOut.get(position*4+0)));
+                iv2.setImageResource(playingActivity.imgURI(playingActivity.winnerOut.get(position*4+1)));
+                iv3.setImageResource(playingActivity.imgURI(playingActivity.winnerOut.get(position*4+2)));
+                iv4.setImageResource(playingActivity.imgURI(playingActivity.winnerOut.get(position*4+3)));
+            }
         }
         @Override
-        public int getItemCount() { return playingActivity.winnerOut.size();  }
+        public int getItemCount() { return playingActivity.winnerOut.size()/4;  }
 
         private class viewHolder extends RecyclerView.ViewHolder{
-            ImageView iv;
+            ImageView iv1,iv2,iv3,iv4;
             public viewHolder(@NonNull View itemView) {
                 super(itemView);
-                iv=itemView.findViewById(R.id.iv_handCards);
+                iv1=itemView.findViewById(R.id.eat1);
+                iv2=itemView.findViewById(R.id.eat2);
+                iv3=itemView.findViewById(R.id.eat3);
+                iv4=itemView.findViewById(R.id.eat4);
             }
         }
     }
