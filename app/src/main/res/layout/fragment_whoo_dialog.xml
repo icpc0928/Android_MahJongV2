@@ -15,6 +15,7 @@
         android:text="遊戲結束"
         android:textSize="30sp"
         android:textStyle="bold"
+        android:textColor="@android:color/white"
         />
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,12 +29,14 @@
             android:layout_height="match_parent"
             android:text="放槍 "
             android:textSize="20sp"
+            android:textColor="@android:color/white"
             />
         <TextView
             android:id="@+id/tv_gunnerName"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="20sp"
+            android:textColor="@android:color/white"
             />
 
     </LinearLayout>
@@ -49,12 +52,14 @@
             android:layout_height="match_parent"
             android:text="贏家 "
             android:textSize="20sp"
+            android:textColor="@android:color/white"
             />
         <TextView
             android:id="@+id/tv_whooerName"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="20sp"
+            android:textColor="@android:color/white"
             />
 
 
@@ -89,9 +94,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_dialog_gotoHome"
             android:layout_width="wrap_content"
+            android:textColor="@android:color/white"
             android:layout_height="wrap_content"
             android:text="返回首頁"
             android:layout_gravity="right"/>

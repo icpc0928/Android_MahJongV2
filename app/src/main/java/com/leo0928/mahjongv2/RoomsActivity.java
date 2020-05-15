@@ -1,22 +1,22 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -48,7 +48,23 @@ public class RoomsActivity extends AppCompatActivity {
     private String selectedRoomId="";
     public String selectedRoomPlayers="";
     private View selectedView = null;
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
 
 
 
@@ -77,6 +93,7 @@ public class RoomsActivity extends AppCompatActivity {
         btn_gotoHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myService.playkeydown_sound();
                 Intent intent = new Intent(RoomsActivity.this,HomeActivity.class);
                 startActivity(intent);
                 RoomsActivity.this.finish();
@@ -88,6 +105,7 @@ public class RoomsActivity extends AppCompatActivity {
         btn_createRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myService.playkeydown_sound();
                 Intent intent = new Intent(RoomsActivity.this,NewRoomActivity.class);
                 startActivity(intent);
                 RoomsActivity.this.finish();
@@ -97,6 +115,7 @@ public class RoomsActivity extends AppCompatActivity {
         btn_refreshList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myService.playkeydown_sound();
                 data.clear();
                 roomList();
                 initListView();
@@ -107,6 +126,7 @@ public class RoomsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(selectedRoomId != ""){
+                    myService.playkeydown_sound();
                     MainApp.RoomId = selectedRoomId;
 
                     Intent intent = new Intent(RoomsActivity.this,OldRoomActivity.class);
@@ -130,6 +150,27 @@ public class RoomsActivity extends AppCompatActivity {
             hideSystemUI();
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+    }
+
+
 
     private void hideSystemUI() {
         View decorView = getWindow().getDecorView();

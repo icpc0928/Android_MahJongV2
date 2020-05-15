@@ -1,33 +1,25 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class OldRoomActivity extends AppCompatActivity {
 
@@ -42,7 +34,23 @@ public class OldRoomActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private Member obj;
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +82,24 @@ public class OldRoomActivity extends AppCompatActivity {
         myRef.addListenerForSingleValueEvent(singleListener);
         myRef.addValueEventListener(listener);
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+    }
     //單次監聽取得人員名單 命且將位置補上
     ValueEventListener singleListener = new ValueEventListener() {
         @Override
@@ -146,12 +171,13 @@ public class OldRoomActivity extends AppCompatActivity {
     //返回房間列表監聽事件
     public void backToRooms(View view) {
         if(obj.getNames().get(0).equals("")){
+
             Toast.makeText(this,"房主離開",Toast.LENGTH_SHORT).show();
         }
 
         //取消拿到的ID
         MainApp.RoomId="";
-
+        myService.playkeydown_sound();
         myRef.child("names").child(myP).setValue("");
 
         myRef.removeEventListener(listener);

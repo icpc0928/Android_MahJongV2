@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayingActivity">
+    tools:context=".PlayingActivity"
+    android:background="#fef4a9"
+    >
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -28,7 +30,7 @@
             android:id="@+id/btn_mask"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#a0eeeeee"
+            android:background="#8aeeeeee"
             />
 
 
@@ -207,6 +209,8 @@
             android:layout_toRightOf="@id/rl_sea_p4"
             android:layout_above="@id/rl_sea_p1"
             android:layout_below="@id/rl_sea_p3"
+            android:background="@drawable/img_gaming_center"
+
             >
 
             <androidx.recyclerview.widget.RecyclerView

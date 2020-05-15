@@ -1,17 +1,16 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,14 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,7 +58,23 @@ public class NewRoomActivity extends AppCompatActivity {
     private DatabaseReference gameRef;
     private OriginMJ MJObj;
 
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
 
 
     @Override
@@ -94,6 +102,25 @@ public class NewRoomActivity extends AppCompatActivity {
         MainApp.myTurn =0;
     }
     //只要此頁面離開自動刪除 兩個資料庫 並將此頁面結束 所有指向
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+    }
     @Override
     protected void onPause() {
         myRef.child("names").child("0").setValue("");
@@ -213,6 +240,7 @@ public class NewRoomActivity extends AppCompatActivity {
 //返回按鈕監聽
     public void backToRooms(View view) {
         //再將頁面關閉
+        myService.playkeydown_sound();
         Intent intent = new Intent(NewRoomActivity.this,RoomsActivity.class);
         startActivity(intent);
         NewRoomActivity.this.finish();
@@ -228,9 +256,10 @@ public class NewRoomActivity extends AppCompatActivity {
 
     //開始遊戲按鈕 先判斷四人在場 改isReady=true Intent
     public void startGame(View view) {
-//        if(player2.getText().toString() != "" && player3.getText().toString() != "" &&player4.getText().toString() != ""){
-            if(true){  //測試
+//        if(){
 
+            if(!player2.getText().toString().equals("") && !player3.getText().toString().equals("") && !player4.getText().toString().equals("")){  //測試
+                myService.playkeydown_sound();
 
             int[] cards =  {11,11,11,11,12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,    //萬
                             21,21,21,21,22,22,22,22,23,23,23,23,24,24,24,24,25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28,29,29,29,29,    //筒

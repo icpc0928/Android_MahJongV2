@@ -1,8 +1,7 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -27,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,11 +33,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class PlayingActivity extends AppCompatActivity {
     public LinearLayoutManager p1_linearLayoutManager,p2_linearLayoutManager,p3_linearLayoutManager,p4_linearLayoutManager,p1Out_linearLayoutManager,p2Out_linearLayoutManager,p3Out_linearLayoutManager,p4Out_linearLayoutManager;
@@ -378,6 +374,7 @@ public class PlayingActivity extends AppCompatActivity {
                 MJObj.getLastCards().remove(MJObj.getLastCards().size()-1);
                 MJObj.setMyHand(p1Hand);
                 myGW();
+                Log.v("leo","摸牌");
 
             }
 
@@ -943,7 +940,7 @@ public class PlayingActivity extends AppCompatActivity {
         @NonNull
         @Override
         public PlayingActivity.p1Out_ListAdapter.viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item, parent, false);
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.eat_p_g_item_myside, parent, false);
             PlayingActivity.p1Out_ListAdapter.viewHolder vh=new PlayingActivity.p1Out_ListAdapter.viewHolder(view);
             //註冊點擊
             return vh;
@@ -1185,8 +1182,8 @@ public class PlayingActivity extends AppCompatActivity {
     private boolean canMyGong(ArrayList<Integer> myHand){
         boolean result = false;
         for(int i=0;i<myHand.size()-1;i++){
+            int count =0;
             for(int j =i;j<myHand.size();j++){
-                int count =0;
                 if(myHand.get(i)==myHand.get(j)){
                     count++;
                 }
@@ -1221,11 +1218,15 @@ public class PlayingActivity extends AppCompatActivity {
 
     private void myGW(){ //判斷摸牌後 "目前的整副牌" 有沒有要 槓牌or自摸
         boolean bGong , bWhoo;
+        ArrayList<Integer> temp =  (ArrayList<Integer>)p1Hand.clone();
+        Collections.sort(temp);
         WhooAlgorithm whooAlgorithm=new WhooAlgorithm();
 
         bGong=canMyGong(p1Hand);
-        bWhoo=whooAlgorithm.canWhoo(p1Hand);
+        bWhoo=whooAlgorithm.canWhoo(temp);
+        Log.v("leo","暗槓:"+bGong+"自摸:"+bWhoo);
         if(bGong||bWhoo){
+            Log.v("leo","framlayout");
             MJObj.setIsTimeStop(true);
             myRef.setValue(MJObj);
             framlayout = framlayout.EatPongGongWhoo(false,false,bGong,bWhoo);

@@ -1,4 +1,4 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -39,11 +40,14 @@ public class EatList extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private MyItemDecoration myItemDecoration;
     private OriginMJ MJObj;
+    private CountDownTimer countDownTimer;
     //建立listener
     private OnItemListener onItemListener=new OnItemListener() {
         @Override
         public void onItemClick(int position) {
             //當item被點擊的時候要做的事情
+
+            countDownTimer.cancel();
             playingActivity.Eatwhat(position);
             playingActivity.closeEatList();
         }
@@ -82,7 +86,23 @@ public class EatList extends Fragment {
 
 
         timer = new Timer();
-        timer.schedule(new EatList.MytimerTask(), 6000);
+//        timer.schedule(new EatList.MytimerTask(), 6000);
+
+        countDownTimer = new CountDownTimer(5000,5000){
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                playingActivity.Eatwhat(0);
+                playingActivity.closeEatList();
+            }
+        };
+        countDownTimer.start();
+
         handler=new EatList.MyHandler();
         //這裡也一個執行緒,它會調用實做runnable物件的run方法
         new Thread(new EatList.countdown()).start();
@@ -132,10 +152,7 @@ public class EatList extends Fragment {
                     cardsDataforEat.add(lastSeaCard);
                     cardsDataforEat.add(lastSeaCard+2);
                 }
-
             }
-
-
         }
     }
 
@@ -146,8 +163,8 @@ public class EatList extends Fragment {
     private class MytimerTask extends TimerTask {
         @Override
         public void run() {
-            playingActivity.Eatwhat(0);
-            playingActivity.closeEatList();
+//            playingActivity.Eatwhat(0);
+//            playingActivity.closeEatList();
         }
     }
     public class countdown implements Runnable{
@@ -201,7 +218,7 @@ public class EatList extends Fragment {
             ImageView iv2 = holder.iv2;
             ImageView iv3 = holder.iv3;
             //有三個,之後改成如果只有一個的話,不用顯示直接吃
-            Log.v("leo","hello:"+position+"有沒有跑position");
+
             if(position !=cardsDataforEat.size()/3){
                 iv1.setImageResource(playingActivity.imgURI(cardsDataforEat.get(position*3+0)));
                 iv2.setImageResource(playingActivity.imgURI(cardsDataforEat.get(position*3+1)));

@@ -1,4 +1,4 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import android.content.Context;
 import android.content.Intent;

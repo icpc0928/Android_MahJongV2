@@ -1,9 +1,12 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,7 +27,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -40,6 +42,24 @@ public class LoginActivity extends AppCompatActivity {
 //    private static String URL_LOGIN = "http://192.168.0.101/android_register_login/login.php";
     private static String URL_LOGIN = "http://leo0928.synology.me/android_register_login/login.php";
     SessionManager sessionManager;
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                 //.trim會將輸入的框框前面空白去掉  將email 跟 password 取得文字
                 String mEmail = email.getText().toString().trim();
                 String mPassword = password.getText().toString().trim();
-
+                myService.playkeydown_sound();
 
                 //如果email跟password "沒有" empty
                 if( !mEmail.isEmpty()|| !mPassword.isEmpty()){
@@ -79,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
         link_regist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myService.playkeydown_sound();
                 startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
             }
         });
@@ -87,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                myService.playkeydown_sound();
                 if (actionId == EditorInfo.IME_ACTION_NEXT) {
 
                 }
@@ -99,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 // TODO Auto-generated method stub
+
                 if(v.getId()==email.getId()){
                     //text獲取交點的時候把返回,home隱藏
                     Log.v("wei","wei");
@@ -177,9 +200,24 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+    }
 
-
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+    }
 
     //LOGIN按鈕能被按做的事情
     private void Login(final String email, final String password) {

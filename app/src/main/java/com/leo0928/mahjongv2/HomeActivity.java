@@ -1,40 +1,40 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.HashMap;
-import java.util.Map;
 
 public class HomeActivity extends AppCompatActivity {
 
     private TextView name , email;
     private Button btn_logout , btn_gotoRooms ,btn_gotoSmallGame;
     SessionManager sessionManager;
+    private MyService myService;
+    private boolean isBind;
+    private ServiceConnection mConnection=new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder iBinder) {
+            //假如有連到,操作 iBinder
+            MyService.LocalBinder binder=(MyService.LocalBinder)iBinder;
+            myService=binder.getService();
+            isBind=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBind=false;
+        }
+    };
     //Firebase
 //    private FirebaseDatabase database;
 //    private DatabaseReference myRef;
@@ -51,8 +51,8 @@ public class HomeActivity extends AppCompatActivity {
 //        myRef = database.getReference();
 
         //SessionManager.java
-//        sessionManager = new SessionManager(this);
-//        sessionManager.checkLogin();
+        sessionManager = new SessionManager(this);
+        sessionManager.checkLogin();
 //
         //檢查是否正在玩,如果是則進入遊戲畫面
 //        if(sessionManager.isPlaying()){
@@ -96,6 +96,7 @@ public class HomeActivity extends AppCompatActivity {
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                myService.playkeydown_sound();
                 sessionManager.logout();
             }
         });
@@ -105,6 +106,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //抓完資料庫資料後才能跳轉頁面
+                myService.playkeydown_sound();
                 Intent intent = new Intent(HomeActivity.this,RoomsActivity.class);
                 startActivity(intent);
                 HomeActivity.this.finish();
@@ -117,6 +119,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //TODO
+                myService.playkeydown_sound();
                 Intent intent = new Intent(HomeActivity.this,SmallGameActivity.class);
                 startActivity(intent);
                 HomeActivity.this.finish();
@@ -135,6 +138,30 @@ public class HomeActivity extends AppCompatActivity {
             hideSystemUI();
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //繫結Service
+        Intent intent=new Intent(this,MyService.class);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
+        intent.putExtra("ACTION","NOTPLAY");
+        startService(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //解除繫結
+        if (isBind){
+            unbindService(mConnection);
+        }
+        myService.stopMedia();
+        Intent intent=new Intent(this,MyService.class);
+        stopService(intent);
+
+    }
+
 
     private void hideSystemUI() {
         View decorView = getWindow().getDecorView();

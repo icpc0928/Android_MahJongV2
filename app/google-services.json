@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:976082907673:android:7a3248dff3e30ab553f088",
         "android_client_info": {
-          "package_name": "com.example.mahjongv2"
+          "package_name": "com.leo0928.mahjongv2"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "976082907673-luiu42jfgu5qan81n8iuleq66bbgibfg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.mahjongv2",
+            "package_name": "com.leo0928.mahjongv2",
             "certificate_hash": "bcbabded16d4540aa6d9712bf7ffef29887afe8c"
           }
         },

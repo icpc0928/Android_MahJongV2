@@ -1,4 +1,4 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import org.junit.Test;
 

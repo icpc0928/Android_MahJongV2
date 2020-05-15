@@ -17,11 +17,11 @@
 
         >
 
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_createRoom"
             android:text="創建房間"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
@@ -29,11 +29,11 @@
             android:layout_marginTop="30dp"
         />
 
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_gotoRoom"
             android:text="加入房間"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/btn_createRoom"
@@ -41,7 +41,7 @@
             android:layout_marginRight="30dp"
             android:layout_marginTop="15dp"
             />
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_refreshList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,13 +51,13 @@
             android:layout_marginTop="15dp"
             android:text="重新整理"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             />
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_gotoHome"
             android:text="返回"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

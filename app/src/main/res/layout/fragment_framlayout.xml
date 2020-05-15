@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0f0"
+    android:background="@drawable/gradient_listview"
     tools:context=".framlayout">
 
     <LinearLayout
@@ -21,58 +21,63 @@
             android:textSize="15sp"
             />
     </LinearLayout>
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/eat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="吃"
         android:textSize="20sp"
+        android:textColor="#fff"
         android:textAlignment="center"
         android:layout_below="@id/text_area"
         android:textStyle="italic"
         />
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/pong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="碰"
         android:textSize="20sp"
+        android:textColor="#fff"
         android:textAlignment="center"
         android:layout_below="@id/text_area"
         android:textStyle="italic"
         android:layout_toRightOf="@id/eat"
         android:layout_marginLeft="20sp"
         />
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/gong"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="槓"
         android:textSize="20sp"
+        android:textColor="#fff"
         android:textAlignment="center"
         android:layout_below="@id/text_area"
         android:textStyle="italic"
         android:layout_toRightOf="@id/pong"
         android:layout_marginLeft="20sp"
         />
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/whoo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="胡"
         android:textSize="20sp"
+        android:textColor="#fff"
         android:textAlignment="center"
         android:layout_below="@id/text_area"
         android:textStyle="italic"
         android:layout_toRightOf="@id/gong"
         android:layout_marginLeft="20sp"
         />
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="取消"
         android:textSize="20sp"
+        android:textColor="#fff"
         android:textAlignment="center"
         android:layout_below="@id/text_area"
         android:textStyle="italic"

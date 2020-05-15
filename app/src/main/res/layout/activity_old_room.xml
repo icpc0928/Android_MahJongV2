@@ -26,11 +26,11 @@
             />
 
 
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_backToRooms"
             android:text="返回"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

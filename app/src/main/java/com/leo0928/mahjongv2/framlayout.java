@@ -1,4 +1,4 @@
-package com.example.mahjongv2;
+package com.leo0928.mahjongv2;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,19 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.zip.Inflater;
 
 
 /**

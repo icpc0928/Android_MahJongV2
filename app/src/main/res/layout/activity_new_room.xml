@@ -25,11 +25,11 @@
 
 
             />
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_startGame"
             android:text="開始遊戲"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/myRoomID"
@@ -42,11 +42,11 @@
 
 
 
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/btn_gotoRooms"
             android:text="返回"
             android:textSize="30sp"
-            android:textColor="@color/colorPrimaryDark2"
+            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

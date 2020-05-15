@@ -5,14 +5,14 @@
     android:layout_height="32dp"
     android:orientation="vertical"
     android:layout_gravity="center"
-    android:background="#0f0"
+
     >
     <ImageView
         android:id="@+id/table_card"
         android:layout_width="24dp"
         android:layout_height="32dp"
         android:layout_gravity="top"
-        android:background="#000"
+
         />
 
 </LinearLayout>
