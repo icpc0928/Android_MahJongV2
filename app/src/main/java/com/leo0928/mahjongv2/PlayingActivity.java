@@ -287,6 +287,8 @@ public class PlayingActivity extends AppCompatActivity {
         stopService(intent);
     }
 
+
+
     ValueEventListener singleListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

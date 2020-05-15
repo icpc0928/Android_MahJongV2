@@ -32,7 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText name , email , password , c_password;
     private Button btn_regist;
     private ProgressBar loading;
-
+    String mname,mEmail,mPassword,mc_password;
 //    private static String URL_REGIST="http://192.168.0.101/android_register_login/register.php";
     private static String URL_REGIST="http://leo0928.synology.me/android_register_login/register.php";
     SessionManager sessionManager;
@@ -55,44 +55,31 @@ public class RegisterActivity extends AppCompatActivity {
         //註冊按鈕監聽
         btn_regist.setOnClickListener(new View.OnClickListener() {
 
-            String mname = name.getText().toString().trim();
-            String mEmail = email.getText().toString().trim();
-            String mPassword = password.getText().toString().trim();
-            String mc_password = c_password.getText().toString().trim();
+
 
             @Override
             public void onClick(View v) {
-                if( !mname.isEmpty()|| !mEmail.isEmpty()|| !mPassword.isEmpty()||!mc_password.isEmpty()){
-                    if(mPassword.equals(mc_password)){
-
-                    }else{
-
-                    Regist();}
+                getString();
+                if( !mname.isEmpty()&!mEmail.isEmpty()& !mPassword.isEmpty()){
+                    Regist();
                 }else{
                     //如果帳號或密碼空白於EditText顯示錯誤訊息
                     name.setError("name不得為空");
                     email.setError("Email不得為空!");
                     password.setError("Password不得為空!");
-                    c_password.setError("您還沒輸入");
+//                    c_password.setError("您還沒輸入");
                 }
 
             }
         });
-
-        //輸入完第一個後,按下軟鍵盤的右下角,到下一個輸入地方--->按鍵遮擋的問題V
-        email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_NEXT) {
-
-                }
-                return false;
-            }
-        });
-
-
     }
 
+    public void getString(){
+        mname = name.getText().toString().trim();
+        mEmail = email.getText().toString().trim();
+        mPassword = password.getText().toString().trim();
+        mc_password = c_password.getText().toString().trim();
+    }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -128,7 +115,7 @@ public class RegisterActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             String success = jsonObject.getString("success");
                             if(success.equals("1")){
-                                Toast.makeText(RegisterActivity.this,"Register Success!",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this,"註冊成功!",Toast.LENGTH_SHORT).show();
                                 //抓完資料庫資料後才能跳轉頁面
                                 Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                                 startActivity(intent);
@@ -137,14 +124,14 @@ public class RegisterActivity extends AppCompatActivity {
                                 //這一步只有帳號重複的可能
                                 //清空輸入
                                 name.setText("");
-                                Toast.makeText(RegisterActivity.this,"Account has already existed!",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this,"已經有相同帳號存在!",Toast.LENGTH_SHORT).show();
                                 loading.setVisibility(View.GONE);
                                 btn_regist.setVisibility(View.VISIBLE);
                         }
                         } catch (Exception e) {
                             Log.v("leo","Exception:  "+e.toString());
                             e.printStackTrace();
-                            Toast.makeText(RegisterActivity.this,"Register Error!  " + e.toString(),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this,"註冊發生錯誤!  " + e.toString(),Toast.LENGTH_SHORT).show();
                             loading.setVisibility(View.GONE);
                             btn_regist.setVisibility(View.VISIBLE);
                         }
@@ -152,7 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(RegisterActivity.this,"ON Error Response!  " + error.toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this,"連線發生問題!  " + error.toString(),Toast.LENGTH_SHORT).show();
                 Log.v("leo","ERROR Response : "+error.toString());
                 loading.setVisibility(View.GONE);
                 btn_regist.setVisibility(View.VISIBLE);

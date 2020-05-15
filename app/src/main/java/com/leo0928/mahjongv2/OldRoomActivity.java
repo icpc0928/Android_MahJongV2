@@ -72,7 +72,7 @@ public class OldRoomActivity extends AppCompatActivity {
         Log.v("leo","myNameIs: "+name);
 
         //
-        myRoomID.setText(MainApp.RoomId);
+        myRoomID.append(MainApp.RoomId);
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(MainApp.RoomId);

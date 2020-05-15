@@ -70,14 +70,15 @@
 
 
 
-    <Button
+    <info.hoang8f.widget.FButton
         android:layout_alignParentBottom="true"
         android:id="@+id/btn_logout"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="200dp"
         android:layout_marginBottom="30dp"
-        android:textColor="@color/colorPrimaryDark2"
+        android:textColor="#fff"
+        android:backgroundTint="#D25565"
 
         android:text="Logout"
         android:layout_width="match_parent"

@@ -251,7 +251,13 @@ public class LoginActivity extends AppCompatActivity {
                                     startActivity(intent);
                                     loading.setVisibility(View.GONE);
                                     btn_login.setVisibility(View.VISIBLE);
+                                    LoginActivity.this.finish();
                                 }
+                            }else{
+                                Toast.makeText(LoginActivity.this,
+                                        "帳號或密碼輸入錯誤",Toast.LENGTH_SHORT).show();
+                                loading.setVisibility(View.GONE);
+                                btn_login.setVisibility(View.VISIBLE);
                             }
                         } catch (Exception e) {
                             Log.v("leo","Catch Error : "+e.toString());

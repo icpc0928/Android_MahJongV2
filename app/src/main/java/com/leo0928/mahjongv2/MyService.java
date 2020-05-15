@@ -82,8 +82,14 @@ public class MyService extends Service {
         super.onDestroy();
     }
     public void playMedia(){
-        mediaPlayer2.start();
+        if (!mediaPlayer2.isPlaying()){
+        mediaPlayer2.start();}
     }
+    public void pauseMedia(){
+        if (mediaPlayer2.isPlaying()){
+        mediaPlayer2.pause();}
+    }
+
     public void stopMedia(){
         if (mediaPlayer2!=null){
         if (mediaPlayer2.isPlaying()){

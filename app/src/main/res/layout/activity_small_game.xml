@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".SmallGameActivity">
+    tools:context=".SmallGameActivity"
+    android:background="#fef4a9">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,12 +15,16 @@
         android:layout_weight="2"
         android:orientation="horizontal"
         >
-    <Button
+        <info.hoang8f.widget.FButton
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
         android:text="返回"
         android:onClick="btn_backToHome"
+            android:backgroundTint="#D25565"
+            android:textColor="#fff"
         />
 
     </RelativeLayout>
@@ -33,42 +38,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-
             >
-            <Button
-                android:id="@+id/btn_noNeed"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="10dp"
-                android:text="不補牌"
-                android:gravity="center"
-                android:onClick="btn_noNeed"
-                />
-            <Button
-                android:id="@+id/btn_cancel"
-                android:layout_width="120dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="10dp"
-                android:text="清除"
-                android:gravity="center"
-                android:onClick="btn_cancel"
-                />
-            <TextView
-                android:id="@+id/tv_betMoney"
-                android:layout_width="120dp"
-                android:layout_height="30dp"
-                android:layout_above="@id/btn_noNeed"
-                android:layout_alignParentRight="true"
-                android:layout_marginBottom="10dp"
-                android:background="#000"
-                android:text="0"
-                android:textColor="#fff"
-                android:gravity="center"
-                />
+
             <TextView
                 android:id="@+id/tv_aiCount"
                 android:layout_width="100dp"
@@ -76,8 +47,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="40dp"
                 android:layout_marginTop="40dp"
-                android:background="#000"
-                android:textColor="#FFF"
+                android:textColor="#000"
                 android:textSize="15sp"
                 android:gravity="center"
                 />
@@ -88,9 +58,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="40dp"
                 android:layout_marginTop="150dp"
-                android:background="#000"
                 android:textSize="15sp"
-                android:textColor="#FFF"
+                android:textColor="#000"
                 android:gravity="center"
                 />
 
@@ -224,74 +193,121 @@
 
 
             </LinearLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="4"
-                android:orientation="horizontal"
-                >
-                <ImageView
-                    android:id="@+id/m100"
-                    android:layout_alignParentLeft="true"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginVertical="10dp"
-                    android:gravity="center"
-                    android:onClick="add100"
-                    />
-                <ImageView
-                    android:id="@+id/m500"
-                    android:layout_toRightOf="@+id/m100"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginVertical="10dp"
-                    android:gravity="center"
-                    android:onClick="add500"
-                    />
-                <ImageView
-                    android:id="@+id/m1000"
-                    android:layout_toRightOf="@+id/m500"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginVertical="10dp"
-                    android:gravity="center"
-                    android:onClick="add1000"
-                    />
-                <Button
-                    android:id="@+id/btn_need"
-                    android:layout_toRightOf="@+id/m1000"
-                    android:layout_width="120dp"
-                    android:layout_height="40dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginBottom="10dp"
-                    android:text="補牌"
-                    android:background="#9FF"
-                    android:gravity="center"
-                    android:onClick="btn_need"
-                    />
-                <Button
-                    android:id="@+id/btn_startGame"
-                    android:layout_toRightOf="@id/m1000"
-                    android:layout_width="120dp"
-                    android:layout_height="40dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginBottom="10dp"
-                    android:text="開始遊戲"
-                    android:background="#9FF"
-                    android:gravity="center"
-                    android:onClick="btn_startGame"
 
-                    />
-
-
-
-            </RelativeLayout>
 
 
         </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:id="@+id/tv_betMoney"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="20dp"
+                android:background="#000"
+                android:text="0"
+                android:textColor="#fff"
+                android:gravity="center"
+                />
+
+            <info.hoang8f.widget.FButton
+                android:id="@+id/btn_noNeed"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@id/tv_betMoney"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:text="不補牌"
+                android:textColor="#FFF"
+                android:onClick="btn_noNeed"
+                />
+            <info.hoang8f.widget.FButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@id/tv_betMoney"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:text="清除"
+                android:textColor="#FFF"
+                android:onClick="btn_cancel"
+                />
+
+
+            <info.hoang8f.widget.FButton
+                android:id="@+id/btn_need"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:text="補牌"
+                android:background="#9FF"
+                android:onClick="btn_need"
+                android:textColor="#FFF"
+                />
+            <info.hoang8f.widget.FButton
+                android:id="@+id/btn_startGame"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="20dp"
+                android:text="開始遊戲"
+                android:background="#9FF"
+                android:onClick="btn_startGame"
+                android:textColor="#FFF"
+
+                />
+            <ImageView
+                android:id="@+id/m1000"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_toLeftOf="@+id/btn_startGame"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:onClick="add1000"
+                />
+            <ImageView
+                android:id="@+id/m500"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_toLeftOf="@+id/m1000"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:onClick="add500"
+                />
+
+            <ImageView
+                android:id="@+id/m100"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_toLeftOf="@+id/m500"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:onClick="add100"
+                />
+
+
+
+
+
+
+
+        </RelativeLayout>
 
     </LinearLayout>
 

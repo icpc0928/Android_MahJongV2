@@ -150,6 +150,18 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        myService.pauseMedia();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        myService.playMedia();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         //解除繫結

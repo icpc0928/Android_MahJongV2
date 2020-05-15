@@ -87,14 +87,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-    <Button
+    <info.hoang8f.widget.FButton
         android:id="@+id/btn_regist"
-        android:backgroundTint="@color/colorPrimary"
-        android:textColor="#ffffff"
-        android:text="Register"
+        android:textColor="#fff"
+        android:text="註冊"
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="55dp"
+
         />
 
 </LinearLayout>
